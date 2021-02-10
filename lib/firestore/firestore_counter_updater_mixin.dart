@@ -28,7 +28,7 @@ mixin FirestoreCounterUpdaterMixin<T extends FirestoreDocumentModel>
           append.path.splitLength() == path.splitLength() + 1,
       "The document you Append must be a child of the collection. $path ${append.path} ${path.splitLength()} ${append.path.splitLength()}",
     );
-    await FirebaseInitializer.initialize();
+    await FirebaseCore.initialize();
     await onAppend();
     final random = Random();
     await firestore.runTransaction((transaction) async {
@@ -57,7 +57,7 @@ mixin FirestoreCounterUpdaterMixin<T extends FirestoreDocumentModel>
           delete.path.splitLength() == path.splitLength() + 1,
       "The document you Delete must be a child of the collection.",
     );
-    await FirebaseInitializer.initialize();
+    await FirebaseCore.initialize();
     await onDelete();
     final random = Random();
     await firestore.runTransaction((transaction) async {

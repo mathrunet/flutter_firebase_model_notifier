@@ -1,6 +1,7 @@
 part of firestore_model_notifier;
 
-abstract class FirestoreDocumentModel<T> extends DocumentModel<T> {
+abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
+    implements StoredModel<T> {
   FirestoreDocumentModel(this.path, T value)
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 0),
             "The path hierarchy must be an even number."),
@@ -57,6 +58,9 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T> {
   @mustCallSuper
   Future<void> onDidDelete() async {}
 
+  @override
+  bool get notifyOnChangeValue => false;
+
   @protected
   @mustCallSuper
   Map<String, Object> filterOnLoad(Map<String, Object> loaded) => loaded;
@@ -77,7 +81,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T> {
 
   @override
   Future<T> load() async {
-    await FirebaseInitializer.initialize();
+    await FirebaseCore.initialize();
     await onLoad();
     await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
     await reference.get().then(_handleOnUpdate);
@@ -86,7 +90,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T> {
   }
 
   Future listen() async {
-    await FirebaseInitializer.initialize();
+    await FirebaseCore.initialize();
     await onListen();
     await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
     reference.snapshots().listen(_handleOnUpdate);
@@ -95,11 +99,13 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T> {
 
   void _handleOnUpdate(DocumentSnapshot snapshot) {
     value = fromMap(filterOnLoad(snapshot.data()?.cast() ?? const {}));
+    streamController.sink.add(value);
+    notifyListeners();
   }
 
   @override
   Future<T> save() async {
-    await FirebaseInitializer.initialize();
+    await FirebaseCore.initialize();
     await onSave();
     await reference.set(filterOnSave(toMap(value)), SetOptions(merge: true));
     await onDidSave();
@@ -107,7 +113,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T> {
   }
 
   Future delete() async {
-    await FirebaseInitializer.initialize();
+    await FirebaseCore.initialize();
     await onDelete();
     await reference.delete();
     await onDidDelete();
@@ -120,4 +126,9 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T> {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => super.hashCode ^ path.hashCode;
+
+  void _notifyListeners() {
+    streamController.sink.add(value);
+    notifyListeners();
+  }
 }

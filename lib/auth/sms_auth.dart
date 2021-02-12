@@ -12,17 +12,16 @@ class SMSAuth {
       BuildContext context, Duration timeout) async {
     String? phoneNumber;
     final auth = context.read(firebaseAuthProvider);
-    // await UILoginFormDialog.show(
-    //   context,
-    //   defaultSubmitAction: (m, p) {
-    //     email = m;
-    //     password = p;
-    //   },
-    // );
-    if (phoneNumber == null || phoneNumber.isEmpty) {
+    await UISMSFormDialog.show(
+      context,
+      defaultSubmitAction: (m) {
+        phoneNumber = m;
+      },
+    );
+    if (phoneNumber.isEmpty) {
       return auth;
     }
-    await auth.sendSMS(phoneNumber, timeout: timeout);
+    await auth.sendSMS(phoneNumber!, timeout: timeout);
     return auth;
   }
 

@@ -12,21 +12,21 @@ class EmailAndPasswordAuth {
       BuildContext context, Duration timeout) async {
     String? email, password;
     final auth = context.read(firebaseAuthProvider);
-    // await UILoginFormDialog.show(
-    //   context,
-    //   defaultSubmitAction: (m, p) {
-    //     email = m;
-    //     password = p;
-    //   },
-    // );
-    if (email == null ||
-        password == null ||
-        email.isEmpty ||
-        password.isEmpty) {
+    await UIEmailAndPasswordFormDialog.show(
+      context,
+      defaultSubmitAction: (m, p) {
+        email = m;
+        password = p;
+      },
+    );
+    if (email.isEmpty || password.isEmpty) {
       return auth;
     }
     await auth.signInEmailAndPassword(
-        email: email, password: password, timeout: timeout);
+      email: email!,
+      password: password!,
+      timeout: timeout,
+    );
     return auth;
   }
 

@@ -38,3 +38,6 @@ part 'auth/auth_provider_options.dart';
 part 'auth/anonymously_auth.dart';
 part 'auth/sms_auth.dart';
 part 'auth/email_and_password_auth.dart';
+
+part "widget/ui_sms_form_dialog.dart";
+part "widget/ui_email_and_password_form_dialog.dart";

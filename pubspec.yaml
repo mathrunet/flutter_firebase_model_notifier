@@ -1,6 +1,6 @@
 name: firebase_model_notifier
 description: ModelNotifier package for Firebase.
-version: 0.7.0-nullsafety.3
+version: 0.8.0-nullsafety.5
 homepage: https://mathru.net
 repository: https://github.com/mathrunet/flutter_model_notifier
 
@@ -12,9 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
     
-  katana: ^0.7.0-nullsafety
-  katana_firebase: ^0.7.0-nullsafety
-  model_notifier: ^0.7.0-nullsafety
+  katana: ^0.8.0-nullsafety
+  katana_firebase: ^0.8.0-nullsafety
+  model_notifier: ^0.8.0-nullsafety
   cloud_firestore: ^0.17.0-1.0.nullsafety
   firebase_auth: ^0.21.0-1.1.nullsafety
   flutter_riverpod: ^0.13.0-nullsafety

@@ -52,8 +52,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   @protected
   T createDocument(String path);
 
-  T create([String? id]) =>
-      createDocument("$path/${id == null || id.isEmpty ? uuid : id}");
+  T create([String? id]) => createDocument("$path/${id.isEmpty ? uuid : id}");
 
   @override
   Future<List<T>> load() async {

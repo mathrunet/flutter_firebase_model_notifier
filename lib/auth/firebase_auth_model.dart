@@ -79,7 +79,7 @@ class FirebaseAuthModel extends Model<User?> {
   ///
   /// [protorol]: Protocol specification.
   bool get isSignedIn {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       return false;
     }
     return true;
@@ -91,7 +91,7 @@ class FirebaseAuthModel extends Model<User?> {
   ///
   /// [protorol]: Protocol specification.
   String get uid {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       return "";
     }
     return user!.uid;
@@ -103,7 +103,7 @@ class FirebaseAuthModel extends Model<User?> {
   ///
   /// [protorol]: Protocol specification.
   String get email {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       return "";
     }
     return user!.email ?? "";
@@ -114,7 +114,7 @@ class FirebaseAuthModel extends Model<User?> {
   ///
   /// [protorol]: Protocol specification.
   bool get isVerified {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       return false;
     }
     return user!.emailVerified;
@@ -126,7 +126,7 @@ class FirebaseAuthModel extends Model<User?> {
   ///
   /// [protorol]: Protocol specification.
   String get phoneNumber {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       return "";
     }
     return user!.phoneNumber ?? "";
@@ -138,7 +138,7 @@ class FirebaseAuthModel extends Model<User?> {
   ///
   /// [protorol]: Protocol specification.
   String get photoURL {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       return "";
     }
     return user!.photoURL ?? "";
@@ -150,7 +150,7 @@ class FirebaseAuthModel extends Model<User?> {
   ///
   /// [protorol]: Protocol specification.
   String get name {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       return "";
     }
     return user!.displayName ?? "";
@@ -160,7 +160,7 @@ class FirebaseAuthModel extends Model<User?> {
   ///
   /// [protorol]: Protocol specification.
   bool get isAnonymously {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       return false;
     }
     return user!.isAnonymous;
@@ -170,7 +170,7 @@ class FirebaseAuthModel extends Model<User?> {
   ///
   /// [protorol]: Protocol specification.
   Future<void> reload() async {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception(
           "Not logged in yet. Please wait until login is successful.");
     }
@@ -196,7 +196,7 @@ class FirebaseAuthModel extends Model<User?> {
   /// [protorol]: Protocol specification.
   /// [timeout]: Timeout time.
   Future<void> signOut({Duration timeout = const Duration(seconds: 60)}) async {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception(
           "Not logged in yet. Please wait until login is successful.");
     }
@@ -216,7 +216,7 @@ class FirebaseAuthModel extends Model<User?> {
   /// [protorol]: Protocol specification.
   /// [timeout]: Timeout time.
   Future<void> delete({Duration timeout = const Duration(seconds: 60)}) async {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception(
           "Not logged in yet. Please wait until login is successful.");
     }
@@ -248,7 +248,7 @@ class FirebaseAuthModel extends Model<User?> {
       {required String password,
       Duration timeout = const Duration(seconds: 60)}) async {
     assert(password.isNotEmpty, "This password is invalid.");
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception(
           "Not logged in yet. Please wait until login is successful.");
     }
@@ -278,7 +278,7 @@ class FirebaseAuthModel extends Model<User?> {
       String? locale,
       Duration timeout = const Duration(seconds: 60)}) async {
     assert(email.isNotEmpty, "This email is invalid.");
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception(
           "Not logged in yet. Please wait until login is successful.");
     }
@@ -311,7 +311,7 @@ class FirebaseAuthModel extends Model<User?> {
       String? locale,
       Duration timeout = const Duration(seconds: 60)}) async {
     assert(password.isNotEmpty, "This password is invalid.");
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception(
           "Not logged in yet. Please wait until login is successful.");
     }
@@ -339,7 +339,7 @@ class FirebaseAuthModel extends Model<User?> {
     Duration timeout = const Duration(seconds: 60),
     String? locale,
   }) async {
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception(
           "Not logged in yet. Please wait until login is successful.");
     }
@@ -420,7 +420,7 @@ class FirebaseAuthModel extends Model<User?> {
       user =
           (await auth.signInWithCredential(credential).timeout(timeout)).user;
     }
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception("User is not found.");
     }
     Prefs.remove("FirestoreSignInEmail".toSHA256(_hashKey));
@@ -514,7 +514,7 @@ class FirebaseAuthModel extends Model<User?> {
                 (await auth.signInWithCredential(credential).timeout(timeout))
                     .user;
           }
-          if (user == null || user!.uid.isEmpty) {
+          if (user.isEmpty) {
             throw Exception("User is not found.");
           }
           streamController.sink.add(user);
@@ -570,7 +570,7 @@ class FirebaseAuthModel extends Model<User?> {
       user =
           (await auth.signInWithCredential(credential).timeout(timeout)).user;
     }
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception("User is not found.");
     }
     Prefs.remove("FirestoreSignInPhoneNumber".toSHA256(_hashKey));
@@ -594,7 +594,7 @@ class FirebaseAuthModel extends Model<User?> {
       throw Exception(
           "An authorization code has not been issued. Use [FirestoreAuth.sendSMS()] to issue the authentication code.");
     }
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception(
           "You are not logged in. You need to log in beforehand using [signInSMS].");
     }
@@ -609,7 +609,7 @@ class FirebaseAuthModel extends Model<User?> {
     await auth.setLanguageCode(locale);
     final credential = PhoneAuthProvider.credential(
         verificationId: phoneNumber, smsCode: smsCode);
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception("User is not found.");
     }
     await user!.updatePhoneNumber(credential as PhoneAuthCredential);
@@ -655,7 +655,7 @@ class FirebaseAuthModel extends Model<User?> {
               .timeout(timeout))
           .user;
     }
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception("User is not found.");
     }
     streamController.sink.add(user);
@@ -683,7 +683,7 @@ class FirebaseAuthModel extends Model<User?> {
       user =
           (await auth.signInWithCredential(credential).timeout(timeout)).user;
     }
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception("User is not found.");
     }
     streamController.sink.add(user);
@@ -716,7 +716,7 @@ class FirebaseAuthModel extends Model<User?> {
       user =
           (await auth.signInWithCredential(credential).timeout(timeout)).user;
     }
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception("User is not found.");
     }
     streamController.sink.add(user);
@@ -744,7 +744,7 @@ class FirebaseAuthModel extends Model<User?> {
       return;
     }
     user = (await auth.signInAnonymously().timeout(timeout)).user;
-    if (user == null || user!.uid.isEmpty) {
+    if (user.isEmpty) {
       throw Exception("User is not found.");
     }
     streamController.sink.add(user);

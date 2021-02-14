@@ -15,7 +15,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   @mustCallSuper
   void initState() {
     super.initState();
-    value = initialValue;
+    value ??= initialValue;
   }
 
   @protected

@@ -2,10 +2,10 @@ part of firestore_model_notifier;
 
 abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     extends ListModel<T> implements StoredModel<List<T>> {
-  FirestoreCollectionModel(this.path, [List<T> value = const []])
+  FirestoreCollectionModel(this.path, [List<T>? value])
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 1),
             "The path hierarchy must be an odd number."),
-        super(value);
+        super(value ?? []);
 
   @protected
   FirebaseFirestore get firestore => FirebaseFirestore.instance;

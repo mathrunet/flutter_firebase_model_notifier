@@ -1,7 +1,7 @@
 part of firestore_model_notifier;
 
 final firestoreCollectionProvider =
-    ModelProvider.family.autoDispose<FirestoreDynamicCollectionModel, String>(
+    ModelProvider.family<FirestoreDynamicCollectionModel, String>(
   (_, path) => FirestoreDynamicCollectionModel(path)..listen(),
 );
 

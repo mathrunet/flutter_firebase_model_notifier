@@ -8,7 +8,7 @@ mixin FirestoreLocalizeMixin<T> on FirestoreDocumentModel<T> {
   @override
   @protected
   @mustCallSuper
-  Map<String, Object> filterOnLoad(Map<String, Object> loaded) {
+  Map<String, dynamic> filterOnLoad(Map<String, dynamic> loaded) {
     for (final key in localizationKeys) {
       final language = Localize.language;
       assert(language.isNotEmpty,
@@ -24,7 +24,7 @@ mixin FirestoreLocalizeMixin<T> on FirestoreDocumentModel<T> {
   @override
   @protected
   @mustCallSuper
-  Map<String, Object> filterOnSave(Map<String, Object> save) {
+  Map<String, dynamic> filterOnSave(Map<String, dynamic> save) {
     final language = Localize.language;
     assert(language.isNotEmpty,
         "The locale is not set. Run [Localize.initialize()] to initialize the translation.");

@@ -1,7 +1,7 @@
 part of firestore_model_notifier;
 
 final firestoreDocumentProvider =
-    ModelProvider.family.autoDispose<FirestoreDynamicDocumentModel, String>(
+    ModelProvider.family<FirestoreDynamicDocumentModel, String>(
   (_, path) => FirestoreDynamicDocumentModel(path)..listen(),
 );
 
@@ -14,11 +14,15 @@ class FirestoreDynamicDocumentModel
         super(path, map ?? {});
 
   @override
-  Map<String, dynamic> fromMap(Map<String, Object> map) =>
+  @protected
+  bool get notifyOnChangeMap => false;
+
+  @override
+  Map<String, dynamic> fromMap(Map<String, dynamic> map) =>
       map.cast<String, dynamic>();
 
   @override
-  Map<String, Object> toMap(Map<String, dynamic> value) =>
+  Map<String, dynamic> toMap(Map<String, dynamic> value) =>
       value.cast<String, Object>();
 
   @override

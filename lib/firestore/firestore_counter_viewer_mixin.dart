@@ -29,7 +29,7 @@ mixin FirestoreCounterViewerMixin<T> on FirestoreDocumentModel<T> {
   @override
   @protected
   @mustCallSuper
-  Map<String, Object> filterOnSave(Map<String, Object> save) {
+  Map<String, dynamic> filterOnSave(Map<String, dynamic> save) {
     return super.filterOnSave(save)
       ..removeWhere((key, value) => counterKeys.contains(key));
   }

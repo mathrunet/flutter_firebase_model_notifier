@@ -63,11 +63,11 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
 
   @protected
   @mustCallSuper
-  Map<String, Object> filterOnLoad(Map<String, Object> loaded) => loaded;
+  Map<String, dynamic> filterOnLoad(Map<String, dynamic> loaded) => loaded;
 
   @protected
   @mustCallSuper
-  Map<String, Object> filterOnSave(Map<String, Object> save) => save;
+  Map<String, dynamic> filterOnSave(Map<String, dynamic> save) => save;
 
   @protected
   FirebaseFirestore get firestore => FirebaseFirestore.instance;

@@ -21,7 +21,7 @@ mixin FirestoreSearchMixin<T extends FirestoreDocumentModel>
       tmp.add(text);
       query = query.where("$searchValueKey.$text", isEqualTo: true);
     });
-    return query;
+    return super.query(query);
   }
 
   Future<List<T>> search(String search) async {

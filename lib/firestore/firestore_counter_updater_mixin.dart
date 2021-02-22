@@ -2,9 +2,14 @@ part of firestore_model_notifier;
 
 mixin FirestoreCounterUpdaterMixin<T extends FirestoreDocumentModel>
     on FirestoreCollectionModel<T> {
-  String get counterValueKey => "value";
-  String get counterCollectionPath => "${path}Count";
+  @protected
   int get counterSharedCount => 1000;
+
+  @protected
+  String get counterValueKey;
+
+  @protected
+  List<FirestoreCounterUpdaterInterval> get intervals => const [];
 
   @protected
   @mustCallSuper
@@ -30,22 +35,24 @@ mixin FirestoreCounterUpdaterMixin<T extends FirestoreDocumentModel>
     );
     await FirebaseCore.initialize();
     await onAppend();
-    final random = Random();
+    final documentPath = path.parentPath();
     await firestore.runTransaction((transaction) async {
+      final doc = await transaction.get(firestore.doc(append.path));
+      if (doc.exists) {
+        return;
+      }
       transaction.set(
-          firestore.doc(append.path),
-          append.filterOnSave(
-            append.toMap(append.value),
-          ),
-          SetOptions(merge: true));
+        firestore.doc(append.path),
+        append.filterOnSave(
+          append.toMap(append.value),
+        ),
+        SetOptions(merge: true),
+      );
       transaction.set(
-          firestore.collection(counterCollectionPath).doc(random
-              .nextInt(counterSharedCount)
-              .format("".padLeft(counterSharedCount.toString().length, "0"))),
-          {
-            counterValueKey: FieldValue.increment(1),
-          },
-          SetOptions(merge: true));
+        firestore.doc(documentPath),
+        _setInterval(FieldValue.increment(1)),
+        SetOptions(merge: true),
+      );
     });
     await onDidAppend();
     return this;
@@ -59,21 +66,62 @@ mixin FirestoreCounterUpdaterMixin<T extends FirestoreDocumentModel>
     );
     await FirebaseCore.initialize();
     await onDelete();
-    final random = Random();
+    final documentPath = path.parentPath();
     await firestore.runTransaction((transaction) async {
+      final doc = await transaction.get(firestore.doc(delete.path));
+      if (!doc.exists) {
+        return;
+      }
       transaction.delete(
         firestore.doc(delete.path),
       );
       transaction.set(
-          firestore.collection(counterCollectionPath).doc(random
-              .nextInt(counterSharedCount)
-              .format("".padLeft(counterSharedCount.toString().length, "0"))),
-          {
-            counterValueKey: FieldValue.increment(-1),
-          },
-          SetOptions(merge: true));
+        firestore.doc(documentPath),
+        _setInterval(FieldValue.increment(-1)),
+        SetOptions(merge: true),
+      );
     });
     await onDidDelete();
     return this;
   }
+
+  Map<String, dynamic> _setInterval(dynamic value) {
+    final now = DateTime.now();
+    final map = {counterValueKey: value};
+    for (final interval in intervals) {
+      switch (interval) {
+        case FirestoreCounterUpdaterInterval.daily:
+          map["$counterValueKey:${now.format("yyyyMMdd")}"] = value;
+          for (var i = 0; i < 30; i++) {
+            map["$counterValueKey:${DateTime(now.year, now.month, now.day - 60 + i).format("yyyyMMdd")}"] =
+                FieldValue.delete();
+          }
+          break;
+        case FirestoreCounterUpdaterInterval.monthly:
+          map["$counterValueKey:${now.format("yyyyMM")}"] = value;
+          for (var i = 0; i < 12; i++) {
+            map["$counterValueKey:${DateTime(now.year, now.month - 24 + i).format("yyyyMM")}"] =
+                FieldValue.delete();
+          }
+          break;
+        case FirestoreCounterUpdaterInterval.yearly:
+          map["$counterValueKey:${now.format("yyyy")}"] = value;
+          for (var i = 0; i < 5; i++) {
+            map["$counterValueKey:${DateTime(now.year, now.month - 10 + i).format("yyyy")}"] =
+                FieldValue.delete();
+          }
+          break;
+        case FirestoreCounterUpdaterInterval.weekly:
+          map["$counterValueKey:${now.format("yyyyww")}"] = value;
+          for (var i = 0; i < 4; i++) {
+            map["$counterValueKey:${DateTime(now.year, now.month, now.day - ((8 - i) * 7)).format("yyyy")}"] =
+                FieldValue.delete();
+          }
+          break;
+      }
+    }
+    return map;
+  }
 }
+
+enum FirestoreCounterUpdaterInterval { daily, weekly, monthly, yearly }

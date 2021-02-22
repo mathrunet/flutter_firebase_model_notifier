@@ -1,6 +1,6 @@
 part of firestore_model_notifier;
 
-mixin FirestoreSearchMixin<T extends FirestoreDocumentModel>
+mixin FirestoreSearchQueryMixin<T extends FirestoreDocumentModel>
     on FirestoreCollectionModel<T> {
   String _searchText = "";
   @protected

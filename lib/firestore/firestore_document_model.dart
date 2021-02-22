@@ -2,10 +2,26 @@ part of firestore_model_notifier;
 
 abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     implements StoredModel<T> {
-  FirestoreDocumentModel(this.path, T value)
+  FirestoreDocumentModel(String path, T value)
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 0),
             "The path hierarchy must be an even number."),
+        path = _getPath(path),
+        paramaters = _getParamaters(path),
         super(value);
+
+  static String _getPath(String path) {
+    if (path.contains("?")) {
+      return path.split("?").first;
+    }
+    return path;
+  }
+
+  static Map<String, String> _getParamaters(String path) {
+    if (path.contains("?")) {
+      return Uri.parse(path).queryParameters;
+    }
+    return const {};
+  }
 
   String get uidValueKey => "uid";
   String get timeValueKey => "time";
@@ -18,10 +34,22 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     value ??= initialValue;
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    for (final subscription in subscriptions) {
+      subscription.cancel();
+    }
+    subscriptions.clear();
+  }
+
   @protected
   T get initialValue;
 
   final String path;
+  final Map<String, String> paramaters;
+
+  final List<StreamSubscription> subscriptions = [];
 
   DocumentSnapshot? _snapshot;
   DocumentReference? _reference;
@@ -89,11 +117,16 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     return value;
   }
 
-  Future listen() async {
+  Future<void> listen() async {
+    if (subscriptions.isNotEmpty) {
+      return;
+    }
     await FirebaseCore.initialize();
     await onListen();
     await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
-    reference.snapshots().listen(_handleOnUpdate);
+    subscriptions.add(
+      reference.snapshots().listen(_handleOnUpdate),
+    );
     await onDidListen();
   }
 

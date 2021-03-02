@@ -1,4 +1,4 @@
-part of firestore_model_notifier;
+part of firebase_model_notifier;
 
 abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     implements StoredModel<T> {

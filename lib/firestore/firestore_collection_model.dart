@@ -1,4 +1,4 @@
-part of firestore_model_notifier;
+part of firebase_model_notifier;
 
 abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     extends ListModel<T> implements StoredModel<List<T>> {

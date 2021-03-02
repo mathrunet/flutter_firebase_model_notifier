@@ -1,4 +1,4 @@
-part of firestore_model_notifier;
+part of firebase_model_notifier;
 
 /// Process sign-in.
 /// Perform an anonymous login.
@@ -23,7 +23,7 @@ class AnonymouslyAuth {
   /// [timeout]: Timeout time.
   static Future<FirebaseAuthModel> signIn(
       {Duration timeout = const Duration(seconds: 60)}) async {
-    final auth = ProviderContainer().read(firebaseAuthProvider);
+    final auth = readProvider(firebaseAuthProvider);
     await auth.signInAnonymously(timeout: timeout);
     return auth;
   }

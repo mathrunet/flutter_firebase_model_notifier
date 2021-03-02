@@ -1,4 +1,4 @@
-part of firestore_model_notifier;
+part of firebase_model_notifier;
 
 /// Log in using your email and password.
 class EmailAndPasswordAuth {
@@ -42,7 +42,7 @@ class EmailAndPasswordAuth {
       required String password,
       String? locale,
       Duration timeout = const Duration(seconds: 60)}) async {
-    final auth = ProviderContainer().read(firebaseAuthProvider);
+    final auth = readProvider(firebaseAuthProvider);
     await auth.registerInEmailAndPassword(
         email: email, password: password, locale: locale);
     return auth;
@@ -58,7 +58,7 @@ class EmailAndPasswordAuth {
       {required String email,
       required String password,
       Duration timeout = const Duration(seconds: 60)}) async {
-    final auth = ProviderContainer().read(firebaseAuthProvider);
+    final auth = readProvider(firebaseAuthProvider);
     await auth.signInEmailAndPassword(
         email: email, password: password, timeout: timeout);
     return auth;
@@ -72,7 +72,7 @@ class EmailAndPasswordAuth {
   static Future<FirebaseAuthModel> reauth(
       {required String password,
       Duration timeout = const Duration(seconds: 60)}) async {
-    final auth = ProviderContainer().read(firebaseAuthProvider);
+    final auth = readProvider(firebaseAuthProvider);
     await auth.reauthInEmailAndPassword(password: password, timeout: timeout);
     return auth;
   }
@@ -84,7 +84,7 @@ class EmailAndPasswordAuth {
   /// [timeout]: Timeout time.
   static Future<FirebaseAuthModel> sendEmailVerification(
       {Duration timeout = const Duration(seconds: 60), String? locale}) async {
-    final auth = ProviderContainer().read(firebaseAuthProvider);
+    final auth = readProvider(firebaseAuthProvider);
     await auth.sendEmailVerification(timeout: timeout, locale: locale);
     return auth;
   }
@@ -99,7 +99,7 @@ class EmailAndPasswordAuth {
       {required String email,
       String? locale,
       Duration timeout = const Duration(seconds: 60)}) async {
-    final auth = ProviderContainer().read(firebaseAuthProvider);
+    final auth = readProvider(firebaseAuthProvider);
     await auth.sendPasswordResetEmail(
         email: email, locale: locale, timeout: timeout);
     return auth;
@@ -118,7 +118,7 @@ class EmailAndPasswordAuth {
       {required String email,
       String? locale,
       Duration timeout = const Duration(seconds: 60)}) async {
-    final auth = ProviderContainer().read(firebaseAuthProvider);
+    final auth = readProvider(firebaseAuthProvider);
     await auth.changeEmail(email: email, locale: locale, timeout: timeout);
     return auth;
   }
@@ -136,7 +136,7 @@ class EmailAndPasswordAuth {
       {required String password,
       String? locale,
       Duration timeout = const Duration(seconds: 60)}) async {
-    final auth = ProviderContainer().read(firebaseAuthProvider);
+    final auth = readProvider(firebaseAuthProvider);
     await auth.changePassword(
         password: password, locale: locale, timeout: timeout);
     return auth;

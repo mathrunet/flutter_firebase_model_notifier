@@ -1,4 +1,4 @@
-part of firestore_model_notifier;
+part of firebase_model_notifier;
 
 final firestoreCollectionProvider =
     ModelProvider.family<FirestoreDynamicCollectionModel, String>(

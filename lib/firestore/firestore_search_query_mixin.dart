@@ -1,4 +1,4 @@
-part of firestore_model_notifier;
+part of firebase_model_notifier;
 
 mixin FirestoreSearchQueryMixin<T extends FirestoreDocumentModel>
     on FirestoreCollectionModel<T> {

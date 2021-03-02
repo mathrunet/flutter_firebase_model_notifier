@@ -1,4 +1,4 @@
-part of firestore_model_notifier;
+part of firebase_model_notifier;
 
 /// Log in using your phone number.
 class SMSAuth {
@@ -33,7 +33,7 @@ class SMSAuth {
   /// [timeout]: Timeout time.
   static Future<FirebaseAuthModel> send(String phoneNumber,
       {String? locale, Duration timeout = const Duration(seconds: 60)}) async {
-    final auth = ProviderContainer().read(firebaseAuthProvider);
+    final auth = readProvider(firebaseAuthProvider);
     await auth.sendSMS(phoneNumber, locale: locale, timeout: timeout);
     return auth;
   }
@@ -46,7 +46,7 @@ class SMSAuth {
   /// [timeout]: Timeout time.
   static Future<FirebaseAuthModel> signIn(String smsCode,
       {String? locale, Duration timeout = const Duration(seconds: 60)}) async {
-    final auth = ProviderContainer().read(firebaseAuthProvider);
+    final auth = readProvider(firebaseAuthProvider);
     await auth.signInSMS(smsCode, locale: locale, timeout: timeout);
     return auth;
   }
@@ -60,7 +60,7 @@ class SMSAuth {
   /// [timeout]: Timeout time.
   static Future<FirebaseAuthModel> changePhoneNumber(String smsCode,
       {String? locale, Duration timeout = const Duration(seconds: 60)}) async {
-    final auth = ProviderContainer().read(firebaseAuthProvider);
+    final auth = readProvider(firebaseAuthProvider);
     await auth.changePhoneNumber(smsCode, locale: locale, timeout: timeout);
     return auth;
   }

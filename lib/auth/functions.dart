@@ -14,12 +14,3 @@ String get userId {
   final auth = readProvider(firebaseAuthProvider);
   return auth.uid;
 }
-
-Future<bool> tryRestoreAuth({
-  Duration timeout = const Duration(seconds: 60),
-  bool retryWhenTimeout = false,
-}) {
-  final auth = readProvider(firebaseAuthProvider);
-  return auth.tryRestoreAuth(
-      timeout: timeout, retryWhenTimeout: retryWhenTimeout);
-}

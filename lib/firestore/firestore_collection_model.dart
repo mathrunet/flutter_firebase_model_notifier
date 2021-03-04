@@ -259,8 +259,8 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
             continue;
           }
           final value = createDocument(doc.doc.reference.path);
-          value.value = value
-              .fromMap(value.filterOnLoad(doc.doc.data()?.cast() ?? const {}));
+          value.value =
+              value.fromMap(value.filterOnLoad(doc.doc.data()?.cast() ?? {}));
           value._snapshot = doc.doc;
           value._reference = doc.doc.reference;
           add(value);
@@ -268,8 +268,8 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
           break;
         case DocumentChangeType.modified:
           if (found != null) {
-            found.value = found.fromMap(
-                found.filterOnLoad(doc.doc.data()?.cast() ?? const {}));
+            found.value =
+                found.fromMap(found.filterOnLoad(doc.doc.data()?.cast() ?? {}));
             found._snapshot = doc.doc;
             found._reference = doc.doc.reference;
             found._notifyListeners();

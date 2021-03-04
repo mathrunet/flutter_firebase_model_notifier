@@ -131,7 +131,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   }
 
   void _handleOnUpdate(DocumentSnapshot snapshot) {
-    value = fromMap(filterOnLoad(snapshot.data()?.cast() ?? const {}));
+    value = fromMap(filterOnLoad(snapshot.data()?.cast() ?? {}));
     streamController.sink.add(value);
     notifyListeners();
   }

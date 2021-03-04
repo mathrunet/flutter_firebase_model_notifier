@@ -222,7 +222,7 @@ packages:
       name: flutter_riverpod
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.0-nullsafety.3"
+    version: "0.13.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -239,14 +239,14 @@ packages:
       name: freezed_annotation
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.0-nullsafety.0"
+    version: "0.14.0"
   hooks_riverpod:
     dependency: "direct main"
     description:
       name: hooks_riverpod
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.0-nullsafety.3"
+    version: "0.13.0"
   http:
     dependency: transitive
     description:
@@ -316,7 +316,7 @@ packages:
       name: model_notifier
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.0-nullsafety.25"
+    version: "0.8.0-nullsafety.28"
   path:
     dependency: transitive
     description:
@@ -393,7 +393,7 @@ packages:
       name: riverpod
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.0-nullsafety.3"
+    version: "0.13.0"
   shared_preferences:
     dependency: transitive
     description:

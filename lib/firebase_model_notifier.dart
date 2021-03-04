@@ -58,4 +58,5 @@ part 'functions/firebase_functions_dynamic_model.dart';
 part 'functions/firebase_functions_dynamic_document_model.dart';
 part 'functions/firebase_functions_dynamic_collection_model.dart';
 
+part 'storage/firebase_storage_core.dart';
 part 'storage/firebase_storage_model.dart';

@@ -1,5 +1,10 @@
 part of firebase_model_notifier;
 
+final firebaseStorageProvider =
+    ModelProvider.family<FirebaseStorageModel, String>(
+  (_, path) => FirebaseStorageModel(path),
+);
+
 class FirebaseStorageModel extends ValueModel<File?> {
   FirebaseStorageModel(this.path) : super(null);
 
@@ -33,7 +38,6 @@ class FirebaseStorageModel extends ValueModel<File?> {
   /// [storageBucket]: Storage bucket path.
   /// [timeout]: Timeout time.
   Future<FirebaseStorageModel> download(
-    String path,
     String cachePath, {
     Duration timeout = const Duration(seconds: 300),
   }) async {
@@ -51,7 +55,7 @@ class FirebaseStorageModel extends ValueModel<File?> {
   /// [file]: File to upload.
   /// [storageBucket]: Storage bucket path.
   /// [timeout]: Timeout time.
-  Future<FirebaseStorageModel> upload(String path, File file,
+  Future<FirebaseStorageModel> upload(File file,
       {Duration timeout = const Duration(seconds: 300)}) async {
     assert(path.isNotEmpty, "Path is invalid.");
     await _upload(file, timeout);

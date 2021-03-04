@@ -13,8 +13,8 @@ mixin FirestoreLocalizeMixin<T> on FirestoreDocumentModel<T> {
       final language = Localize.language;
       assert(language.isNotEmpty,
           "The locale is not set. Run [Localize.initialize()] to initialize the translation.");
-      final localizations = loaded
-          .get<Map<String, dynamic>>("$key$localizationValueKey", const {});
+      final localizations =
+          loaded.get<Map<String, dynamic>>("$key$localizationValueKey", {});
       loaded[key] = localizations.get(language, loaded.get<String>(key, ""));
     }
     return super.filterOnLoad(loaded);

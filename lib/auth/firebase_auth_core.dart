@@ -7,6 +7,16 @@ class FirebaseAuthCore {
     return readProvider(firebaseAuthProvider);
   }
 
+  static void addListenerOnAuthorized(
+          Future<void> Function(FirebaseAuthModel auth, User user, String uid)
+              callback) =>
+      _auth.addListenerOnAuthorized(callback);
+
+  static void removeListenerOnAuthorized(
+          Future<void> Function(FirebaseAuthModel auth, User user, String uid)
+              callback) =>
+      _auth.removeListenerOnAuthorized(callback);
+
   /// Set options for authentication.
   ///
   /// [twitterAPIKey]: Twitter API Key.

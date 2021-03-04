@@ -10,19 +10,38 @@ class FirebaseAuthModel extends Model<User?> {
     return FirebaseAuth.instance;
   }
 
-  static const String _hashKey = "MBdKdx3nAHFNeaP32zu8re9rzfHSGZj3";
-
-  @protected
-  User? get user => _user;
-  @protected
-  set user(User? user) {
-    if (user == null || user == _user) {
+  void addListenerOnAuthorized(
+      Future<void> Function(FirebaseAuthModel auth, User user, String uid)
+          callback) {
+    if (_onAuthorizedCallback.contains(callback)) {
       return;
     }
-    _user = user;
+    _onAuthorizedCallback.add(callback);
   }
 
-  User? _user;
+  void removeListenerOnAuthorized(
+      Future<void> Function(FirebaseAuthModel auth, User user, String uid)
+          callback) {
+    _onAuthorizedCallback.remove(callback);
+  }
+
+  final List<
+          Future<void> Function(FirebaseAuthModel auth, User user, String uid)>
+      _onAuthorizedCallback = [];
+
+  static const String _hashKey = "MBdKdx3nAHFNeaP32zu8re9rzfHSGZj3";
+
+  // @protected
+  User? get user => auth.currentUser;
+  // @protected
+  // set user(User? user) {
+  //   if (user == null || user == _user) {
+  //     return;
+  //   }
+  //   _user = user;
+  // }
+
+  // User? _user;
 
   /// Set options for authentication.
   ///
@@ -61,7 +80,11 @@ class FirebaseAuthModel extends Model<User?> {
       final user = auth.currentUser;
       if (user != null) {
         await user.reload().timeout(timeout);
-        this.user = user;
+        // this.user = user;
+        await Future.wait(
+          _onAuthorizedCallback
+              .mapAndRemoveEmpty((item) => item.call(this, user, user.uid)),
+        );
         return true;
       }
     } on TimeoutException {
@@ -206,7 +229,7 @@ class FirebaseAuthModel extends Model<User?> {
   Future _signOutProcess(Duration timeout) async {
     await FirebaseCore.initialize();
     await auth.signOut().timeout(timeout);
-    user = null;
+    // user = null;
     streamController.sink.add(user);
     notifyListeners();
   }
@@ -226,7 +249,7 @@ class FirebaseAuthModel extends Model<User?> {
   Future _deleteProcess(Duration timeout) async {
     await FirebaseCore.initialize();
     await user!.delete().timeout(timeout);
-    user = null;
+    // user = null;
     streamController.sink.add(user);
     notifyListeners();
   }
@@ -291,7 +314,7 @@ class FirebaseAuthModel extends Model<User?> {
     await FirebaseCore.initialize();
     await auth.setLanguageCode(locale);
     await user!.updateEmail(email);
-    user = auth.currentUser;
+    // user = auth.currentUser;
     await user!.reload();
     streamController.sink.add(user);
     notifyListeners();
@@ -324,7 +347,7 @@ class FirebaseAuthModel extends Model<User?> {
     await FirebaseCore.initialize();
     await auth.setLanguageCode(locale);
     await user!.updatePassword(password);
-    user = auth.currentUser;
+    // user = auth.currentUser;
     await user!.reload();
     streamController.sink.add(user);
     notifyListeners();
@@ -415,15 +438,21 @@ class FirebaseAuthModel extends Model<User?> {
     final credential =
         EmailAuthProvider.credentialWithLink(email: email, emailLink: link);
     if (user != null) {
-      user = (await user!.linkWithCredential(credential).timeout(timeout)).user;
+      await user!.linkWithCredential(credential).timeout(timeout);
+      // user = (await user!.linkWithCredential(credential).timeout(timeout)).user;
     } else {
-      user =
-          (await auth.signInWithCredential(credential).timeout(timeout)).user;
+      await auth.signInWithCredential(credential).timeout(timeout);
+      // user =
+      //     (await auth.signInWithCredential(credential).timeout(timeout)).user;
     }
     if (user.isEmpty) {
       throw Exception("User is not found.");
     }
     Prefs.remove("FirestoreSignInEmail".toSHA256(_hashKey));
+    await Future.wait(
+      _onAuthorizedCallback
+          .mapAndRemoveEmpty((item) => item.call(this, user!, user!.uid)),
+    );
     streamController.sink.add(user);
     notifyListeners();
   }
@@ -505,18 +534,24 @@ class FirebaseAuthModel extends Model<User?> {
           if (user != null) {
             if (!user!.providerData.any(
                 (t) => t.providerId.contains(PhoneAuthProvider.PROVIDER_ID))) {
-              user =
-                  (await user!.linkWithCredential(credential).timeout(timeout))
-                      .user;
+              await user!.linkWithCredential(credential).timeout(timeout);
+              // user =
+              //     (await user!.linkWithCredential(credential).timeout(timeout))
+              //         .user;
             }
           } else {
-            user =
-                (await auth.signInWithCredential(credential).timeout(timeout))
-                    .user;
+            await auth.signInWithCredential(credential).timeout(timeout);
+            // user =
+            //     (await auth.signInWithCredential(credential).timeout(timeout))
+            //         .user;
           }
           if (user.isEmpty) {
             throw Exception("User is not found.");
           }
+          await Future.wait(
+            _onAuthorizedCallback
+                .mapAndRemoveEmpty((item) => item.call(this, user!, user!.uid)),
+          );
           streamController.sink.add(user);
           notifyListeners();
         },
@@ -563,17 +598,23 @@ class FirebaseAuthModel extends Model<User?> {
     if (user != null) {
       if (!user!.providerData
           .any((t) => t.providerId.contains(PhoneAuthProvider.PROVIDER_ID))) {
-        user =
-            (await user!.linkWithCredential(credential).timeout(timeout)).user;
+        await user!.linkWithCredential(credential).timeout(timeout);
+        // user =
+        //     (await user!.linkWithCredential(credential).timeout(timeout)).user;
       }
     } else {
-      user =
-          (await auth.signInWithCredential(credential).timeout(timeout)).user;
+      await auth.signInWithCredential(credential).timeout(timeout);
+      // user =
+      //     (await auth.signInWithCredential(credential).timeout(timeout)).user;
     }
     if (user.isEmpty) {
       throw Exception("User is not found.");
     }
     Prefs.remove("FirestoreSignInPhoneNumber".toSHA256(_hashKey));
+    await Future.wait(
+      _onAuthorizedCallback
+          .mapAndRemoveEmpty((item) => item.call(this, user!, user!.uid)),
+    );
     streamController.sink.add(user);
     notifyListeners();
   }
@@ -613,7 +654,7 @@ class FirebaseAuthModel extends Model<User?> {
       throw Exception("User is not found.");
     }
     await user!.updatePhoneNumber(credential as PhoneAuthCredential);
-    user = auth.currentUser;
+    // user = auth.currentUser;
     await user!.reload();
     Prefs.remove("FirestoreSignInPhoneNumber".toSHA256(_hashKey));
     streamController.sink.add(user);
@@ -643,21 +684,32 @@ class FirebaseAuthModel extends Model<User?> {
       String email, String password, String locale, Duration timeout) async {
     await _prepareProcessInternal(timeout);
     if (user != null) {
-      user = (await user!
-              .linkWithCredential(EmailAuthProvider.credential(
-                  email: email, password: password))
-              .timeout(timeout))
-          .user;
+      await user!
+          .linkWithCredential(
+              EmailAuthProvider.credential(email: email, password: password))
+          .timeout(timeout);
+      // user = (await user!
+      //         .linkWithCredential(EmailAuthProvider.credential(
+      //             email: email, password: password))
+      //         .timeout(timeout))
+      //     .user;
     } else {
       await auth.setLanguageCode(locale);
-      user = (await auth
-              .createUserWithEmailAndPassword(email: email, password: password)
-              .timeout(timeout))
-          .user;
+      await auth
+          .createUserWithEmailAndPassword(email: email, password: password)
+          .timeout(timeout);
+      // user = (await auth
+      //         .createUserWithEmailAndPassword(email: email, password: password)
+      //         .timeout(timeout))
+      //     .user;
     }
     if (user.isEmpty) {
       throw Exception("User is not found.");
     }
+    await Future.wait(
+      _onAuthorizedCallback
+          .mapAndRemoveEmpty((item) => item.call(this, user!, user!.uid)),
+    );
     streamController.sink.add(user);
     notifyListeners();
   }
@@ -678,14 +730,20 @@ class FirebaseAuthModel extends Model<User?> {
     final credential =
         EmailAuthProvider.credential(email: email, password: password);
     if (user != null) {
-      user = (await user!.linkWithCredential(credential).timeout(timeout)).user;
+      await user!.linkWithCredential(credential).timeout(timeout);
+      // user = (await user!.linkWithCredential(credential).timeout(timeout)).user;
     } else {
-      user =
-          (await auth.signInWithCredential(credential).timeout(timeout)).user;
+      await auth.signInWithCredential(credential).timeout(timeout);
+      // user =
+      //     (await auth.signInWithCredential(credential).timeout(timeout)).user;
     }
     if (user.isEmpty) {
       throw Exception("User is not found.");
     }
+    await Future.wait(
+      _onAuthorizedCallback
+          .mapAndRemoveEmpty((item) => item.call(this, user!, user!.uid)),
+    );
     streamController.sink.add(user);
     notifyListeners();
   }
@@ -711,14 +769,20 @@ class FirebaseAuthModel extends Model<User?> {
     }
     final credential = await providerCallback(timeout);
     if (user != null) {
-      user = (await user!.linkWithCredential(credential).timeout(timeout)).user;
+      await user!.linkWithCredential(credential).timeout(timeout);
+      // user = (await user!.linkWithCredential(credential).timeout(timeout)).user;
     } else {
-      user =
-          (await auth.signInWithCredential(credential).timeout(timeout)).user;
+      await auth.signInWithCredential(credential).timeout(timeout);
+      // user =
+      //     (await auth.signInWithCredential(credential).timeout(timeout)).user;
     }
     if (user.isEmpty) {
       throw Exception("User is not found.");
     }
+    await Future.wait(
+      _onAuthorizedCallback
+          .mapAndRemoveEmpty((item) => item.call(this, user!, user!.uid)),
+    );
     streamController.sink.add(user);
     notifyListeners();
   }
@@ -735,7 +799,11 @@ class FirebaseAuthModel extends Model<User?> {
       return;
     }
     await user.reload().timeout(timeout);
-    this.user = user;
+    // this.user = user;
+    await Future.wait(
+      _onAuthorizedCallback
+          .mapAndRemoveEmpty((item) => item.call(this, user, user.uid)),
+    );
     return;
   }
 
@@ -743,7 +811,8 @@ class FirebaseAuthModel extends Model<User?> {
     if (user != null) {
       return;
     }
-    user = (await auth.signInAnonymously().timeout(timeout)).user;
+    await auth.signInAnonymously().timeout(timeout);
+    // user = (await auth.signInAnonymously().timeout(timeout)).user;
     if (user.isEmpty) {
       throw Exception("User is not found.");
     }

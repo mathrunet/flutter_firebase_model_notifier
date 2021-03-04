@@ -17,7 +17,7 @@ mixin FirestoreSearchUpdaterMixin<T> on FirestoreDocumentModel<T> {
         continue;
       }
       final val = save.get(key, "");
-      tmp += val ?? "";
+      tmp += val;
     }
     if (tmp.isEmpty) {
       return super.filterOnSave(save);

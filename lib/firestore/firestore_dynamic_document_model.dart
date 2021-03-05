@@ -2,7 +2,7 @@ part of firebase_model_notifier;
 
 final firestoreDocumentProvider =
     ModelProvider.family<FirestoreDynamicDocumentModel, String>(
-  (_, path) => FirestoreDynamicDocumentModel(path)..listen(),
+  (_, path) => FirestoreDynamicDocumentModel(path),
 );
 
 class FirestoreDynamicDocumentModel

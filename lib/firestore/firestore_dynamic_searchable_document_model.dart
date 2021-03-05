@@ -2,7 +2,7 @@ part of firebase_model_notifier;
 
 final firestoreSearchableDocumentProvider =
     ModelProvider.family<FirestoreDynamicSearchableDocumentModel, String>(
-  (_, path) => FirestoreDynamicSearchableDocumentModel(path)..listen(),
+  (_, path) => FirestoreDynamicSearchableDocumentModel(path),
 );
 
 class FirestoreDynamicSearchableDocumentModel

@@ -35,7 +35,7 @@ mixin FirestoreSearchQueryMixin<T extends FirestoreDocumentModel>
   }
 
   @override
-  Future listen() {
+  Future<FirestoreCollectionModel<T>> listen() {
     throw UnimplementedError(
         "In the case of search processing, Listen is not possible.");
   }

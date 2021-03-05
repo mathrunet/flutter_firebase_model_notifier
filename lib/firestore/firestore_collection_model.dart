@@ -1,7 +1,10 @@
 part of firebase_model_notifier;
 
 abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
-    extends ListModel<T> implements StoredModel<List<T>> {
+    extends ListModel<T>
+    implements
+        StoredModel<List<T>, FirestoreCollectionModel<T>>,
+        ListenedModel<List<T>, FirestoreCollectionModel<T>> {
   FirestoreCollectionModel(String path, [List<T>? value])
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 1),
             "The path hierarchy must be an odd number."),
@@ -201,7 +204,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   T create([String? id]) => createDocument("$path/${id.isEmpty ? uuid : id}");
 
   @override
-  Future<List<T>> load() async {
+  Future<FirestoreCollectionModel<T>> load() async {
     await FirebaseCore.initialize();
     await onLoad();
     await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
@@ -212,7 +215,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     return this;
   }
 
-  Future<List<T>> next() async {
+  Future<FirestoreCollectionModel<T>> next() async {
     await FirebaseCore.initialize();
     final last = length <= 0 ? null : this.last._snapshot;
     if (last == null) {
@@ -228,9 +231,10 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     return this;
   }
 
-  Future<void> listen() async {
+  @override
+  Future<FirestoreCollectionModel<T>> listen() async {
     if (subscriptions.isNotEmpty) {
-      return;
+      return this;
     }
     await FirebaseCore.initialize();
     await onLoad();
@@ -241,10 +245,11 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
       ),
     );
     await onDidListen();
+    return this;
   }
 
   @override
-  Future<List<T>> save() async {
+  Future<FirestoreCollectionModel<T>> save() async {
     throw UnimplementedError("Save process should be done for each document.");
   }
 

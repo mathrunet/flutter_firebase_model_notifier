@@ -2,7 +2,7 @@ part of firebase_model_notifier;
 
 final firestoreCollectionProvider =
     ModelProvider.family<FirestoreDynamicCollectionModel, String>(
-  (_, path) => FirestoreDynamicCollectionModel(path)..listen(),
+  (_, path) => FirestoreDynamicCollectionModel(path),
 );
 
 class FirestoreDynamicCollectionModel

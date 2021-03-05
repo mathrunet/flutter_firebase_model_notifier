@@ -2,7 +2,7 @@ part of firebase_model_notifier;
 
 final firestoreCounterCollectionProvider =
     ModelProvider.family<FirestoreDynamicCounterCollectionModel, String>(
-  (_, path) => FirestoreDynamicCounterCollectionModel(path)..listen(),
+  (_, path) => FirestoreDynamicCounterCollectionModel(path),
 );
 
 class FirestoreDynamicCounterCollectionModel

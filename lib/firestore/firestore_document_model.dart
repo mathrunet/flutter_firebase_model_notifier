@@ -1,7 +1,9 @@
 part of firebase_model_notifier;
 
 abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
-    implements StoredModel<T> {
+    implements
+        StoredModel<T, FirestoreDocumentModel<T>>,
+        ListenedModel<T, FirestoreDocumentModel<T>> {
   FirestoreDocumentModel(String path, T value)
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 0),
             "The path hierarchy must be an even number."),
@@ -108,18 +110,19 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   }
 
   @override
-  Future<T> load() async {
+  Future<FirestoreDocumentModel<T>> load() async {
     await FirebaseCore.initialize();
     await onLoad();
     await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
     await reference.get().then(_handleOnUpdate);
     await onDidLoad();
-    return value;
+    return this;
   }
 
-  Future<void> listen() async {
+  @override
+  Future<FirestoreDocumentModel<T>> listen() async {
     if (subscriptions.isNotEmpty) {
-      return;
+      return this;
     }
     await FirebaseCore.initialize();
     await onListen();
@@ -128,6 +131,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
       reference.snapshots().listen(_handleOnUpdate),
     );
     await onDidListen();
+    return this;
   }
 
   void _handleOnUpdate(DocumentSnapshot snapshot) {
@@ -137,15 +141,15 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   }
 
   @override
-  Future<T> save() async {
+  Future<FirestoreDocumentModel<T>> save() async {
     await FirebaseCore.initialize();
     await onSave();
     await reference.set(filterOnSave(toMap(value)), SetOptions(merge: true));
     await onDidSave();
-    return value;
+    return this;
   }
 
-  Future delete() async {
+  Future<void> delete() async {
     await FirebaseCore.initialize();
     await onDelete();
     await reference.delete();

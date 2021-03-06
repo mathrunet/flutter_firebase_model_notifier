@@ -4,7 +4,8 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     extends ListModel<T>
     implements
         StoredModel<List<T>, FirestoreCollectionModel<T>>,
-        ListenedModel<List<T>, FirestoreCollectionModel<T>> {
+        ListenedModel<List<T>, FirestoreCollectionModel<T>>,
+        CollectionMockModel<T, FirestoreCollectionModel<T>> {
   FirestoreCollectionModel(String path, [List<T>? value])
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 1),
             "The path hierarchy must be an odd number."),
@@ -202,6 +203,30 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   T createDocument(String path);
 
   T create([String? id]) => createDocument("$path/${id.isEmpty ? uuid : id}");
+
+  @override
+  FirestoreCollectionModel<T> mock(List<Map<String, dynamic>> mockData) {
+    bool notify = false;
+    if (isNotEmpty) {
+      clear();
+      notify = true;
+    }
+    if (mockData.isNotEmpty) {
+      notify = true;
+      final addData = <T>[];
+      for (final tmp in mockData) {
+        final value = createDocument("$path/${tmp.hashCode}");
+        value.value = value.fromMap(value.filterOnLoad(tmp));
+        addData.add(value);
+      }
+      addAll(addData);
+    }
+    if (notify) {
+      streamController.sink.add(value);
+      notifyListeners();
+    }
+    return this;
+  }
 
   @override
   Future<FirestoreCollectionModel<T>> load() async {

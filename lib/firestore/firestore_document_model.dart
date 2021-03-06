@@ -3,7 +3,8 @@ part of firebase_model_notifier;
 abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     implements
         StoredModel<T, FirestoreDocumentModel<T>>,
-        ListenedModel<T, FirestoreDocumentModel<T>> {
+        ListenedModel<T, FirestoreDocumentModel<T>>,
+        DocumentMockModel<T, FirestoreDocumentModel<T>> {
   FirestoreDocumentModel(String path, T value)
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 0),
             "The path hierarchy must be an even number."),
@@ -107,6 +108,14 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
       return _reference!;
     }
     return firestore.doc(path);
+  }
+
+  @override
+  FirestoreDocumentModel<T> mock(Map<String, dynamic> mockData) {
+    value = fromMap(filterOnLoad(mockData));
+    streamController.sink.add(value);
+    notifyListeners();
+    return this;
   }
 
   @override

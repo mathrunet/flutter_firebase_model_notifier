@@ -4,17 +4,34 @@ class FirestoreQuery {
   const FirestoreQuery(
     this.path, {
     this.key,
-    this.value,
-    this.type,
+    this.isEqualTo,
+    this.isNotEqualTo,
+    // this.isLessThan,
+    this.isLessThanOrEqualTo,
+    // this.isGreaterThan,
+    this.isGreaterThanOrEqualTo,
+    this.arrayContains,
+    this.arrayContainsAny,
+    this.whereIn,
+    this.whereNotIn,
     this.order = FirestoreQueryOrder.asc,
     this.limit,
     this.orderBy,
   });
   final String path;
-  final dynamic value;
   final String? key;
   final String? orderBy;
-  final FirestoreQueryType? type;
+  final dynamic isEqualTo;
+  final dynamic isNotEqualTo;
+  // final dynamic isLessThan;
+  final dynamic isLessThanOrEqualTo;
+  // final dynamic isGreaterThan;
+  final dynamic isGreaterThanOrEqualTo;
+  final dynamic arrayContains;
+  final List<dynamic>? arrayContainsAny;
+  final List<dynamic>? whereIn;
+  final List<dynamic>? whereNotIn;
+  // final bool? isNull;
   final FirestoreQueryOrder order;
   final int? limit;
 
@@ -36,68 +53,33 @@ class FirestoreQuery {
     }
   }
 
-  String get url {
-    if (key.isEmpty || type == null) {
+  String get value {
+    if (key.isEmpty) {
       return path;
     }
     final tmp = "$path?key=$key";
-    switch (type) {
-      case FirestoreQueryType.equal:
-        if (value is! String) {
-          return path;
-        }
-        return _limit(_order("$tmp&equalTo=$value"));
-      case FirestoreQueryType.notEqual:
-        if (value is! String) {
-          return path;
-        }
-        return _limit(_order("$tmp&notEqualTo=$value"));
-      case FirestoreQueryType.greaterThanOrEqual:
-        if (value is! num) {
-          return path;
-        }
-        return _limit(_order("$tmp&startAt=$value"));
-      case FirestoreQueryType.lessThanOrEqual:
-        if (value is! num) {
-          return path;
-        }
-        return _limit(_order("$tmp&endAt=$value"));
-      case FirestoreQueryType.contains:
-        if (value is! String) {
-          return path;
-        }
-        return _limit(_order("$tmp&contains=$value"));
-      case FirestoreQueryType.containsAny:
-        if (value is! List<String>) {
-          return path;
-        }
-        return _limit(_order("$tmp&containsAny=${value.join(",")}"));
-      case FirestoreQueryType.whereIn:
-        if (value is! List<String>) {
-          return path;
-        }
-        return _limit(_order("$tmp&whereIn=${value.join(",")}"));
-      case FirestoreQueryType.whereNotIn:
-        if (value is! List<String>) {
-          return path;
-        }
-        return _limit(_order("$tmp&whereNotIn=${value.join(",")}"));
-      default:
-        return tmp;
+    if (isEqualTo != null) {
+      return _limit(_order("$tmp&equalTo=$isEqualTo"));
+    } else if (isNotEqualTo != null) {
+      return _limit(_order("$tmp&notEqualTo=$isNotEqualTo"));
+    } else if (isLessThanOrEqualTo != null) {
+      return _limit(_order("$tmp&endAt=$value"));
+    } else if (isGreaterThanOrEqualTo != null) {
+      return _limit(_order("$tmp&startAt=$value"));
+    } else if (arrayContains != null) {
+      return _limit(_order("$tmp&contains=$arrayContains"));
+    } else if (arrayContainsAny != null) {
+      return _limit(_order(
+          "$tmp&containsAny=${arrayContainsAny!.map((e) => e.toString()).join(",")}"));
+    } else if (whereIn != null) {
+      return _limit(_order(
+          "$tmp&whereIn=${whereIn!.map((e) => e.toString()).join(",")}"));
+    } else if (whereNotIn != null) {
+      return _limit(_order(
+          "$tmp&whereNotIn=${whereNotIn!.map((e) => e.toString()).join(",")}"));
     }
+    return tmp;
   }
 }
 
 enum FirestoreQueryOrder { asc, desc }
-
-enum FirestoreQueryType {
-  equal,
-  notEqual,
-  greaterThanOrEqual,
-  lessThanOrEqual,
-  // range,
-  contains,
-  containsAny,
-  whereIn,
-  whereNotIn,
-}

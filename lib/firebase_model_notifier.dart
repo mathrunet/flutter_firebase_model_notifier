@@ -26,6 +26,8 @@ export "package:cloud_firestore/cloud_firestore.dart";
 export 'package:firebase_auth/firebase_auth.dart';
 
 part 'src/extensions.dart';
+part 'firestore/functions.dart';
+part 'firestore/extensions.dart';
 part 'firestore/firestore_query.dart';
 part 'firestore/firestore_document_model.dart';
 part 'firestore/firestore_collection_model.dart';

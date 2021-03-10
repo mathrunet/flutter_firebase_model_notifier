@@ -2,10 +2,31 @@ part of firebase_model_notifier;
 
 extension FirestoreDynamicDocumentModelExtensions
     on FirestoreDynamicDocumentModel {
-  FirestoreDynamicDocumentModel searchField(
-      {String key = "@search",
-      List<String> bigramKeys = const ["name", "text"],
-      List<String> tagKeys = const ["tag", "category"]}) {
+  String localized(
+    String key,
+    String orElse, {
+    String? locale,
+    String localizationValueKey = "@translate",
+  }) {
+    locale ??= Localize.language;
+    final map = get(
+      "$key$localeValueKey",
+      const <String, dynamic>{},
+    );
+    if (map.isEmpty) {
+      return get(key, orElse);
+    }
+    return map.get(
+      locale,
+      get(key, orElse),
+    );
+  }
+
+  FirestoreDynamicDocumentModel setSearchField({
+    String key = "@search",
+    List<String> bigramKeys = const ["name", "text"],
+    List<String> tagKeys = const ["tag", "category"],
+  }) {
     var tmp = "";
     for (final bigramKey in bigramKeys) {
       if (this[bigramKey] is! String) {
@@ -30,8 +51,50 @@ extension FirestoreDynamicDocumentModelExtensions
     return this;
   }
 
-  FirestoreDynamicDocumentModel increment(String key, num value) {
+  FirestoreDynamicDocumentModel increment(
+    String key,
+    num value, {
+    List<FirestoreCounterUpdaterInterval> intervals = const [],
+  }) {
     this[key] = FieldValue.increment(value);
+    if (intervals.isEmpty) {
+      return this;
+    }
+    final now = DateTime.now();
+    for (final interval in intervals) {
+      switch (interval) {
+        case FirestoreCounterUpdaterInterval.daily:
+          this[dailyKey(key, now)] = FieldValue.increment(value);
+          for (var i = 0; i < 30; i++) {
+            this[dailyKey(
+                    key, DateTime(now.year, now.month, now.day - 60 + i))] =
+                FieldValue.delete();
+          }
+          break;
+        case FirestoreCounterUpdaterInterval.monthly:
+          this[monthlyKey(key, now)] = FieldValue.increment(value);
+          for (var i = 0; i < 12; i++) {
+            this[monthlyKey(key, DateTime(now.year, now.month - 24 + i))] =
+                FieldValue.delete();
+          }
+          break;
+        case FirestoreCounterUpdaterInterval.yearly:
+          this[yearlyKey(key, now)] = FieldValue.increment(value);
+          for (var i = 0; i < 5; i++) {
+            this[yearlyKey(key, DateTime(now.year, now.month - 10 + i))] =
+                FieldValue.delete();
+          }
+          break;
+        case FirestoreCounterUpdaterInterval.weekly:
+          this[weeklyKey(key, now)] = FieldValue.increment(value);
+          for (var i = 0; i < 4; i++) {
+            this[weeklyKey(key,
+                    DateTime(now.year, now.month, now.day - ((8 - i) * 7)))] =
+                FieldValue.delete();
+          }
+          break;
+      }
+    }
     return this;
   }
 

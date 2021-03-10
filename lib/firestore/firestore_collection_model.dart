@@ -27,24 +27,6 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     return const {};
   }
 
-  static dynamic _parse(dynamic value) {
-    if (value is String) {
-      final b = value.toLowerCase();
-      if (b == "true") {
-        return true;
-      } else if (b == "false") {
-        return false;
-      }
-      final n = num.tryParse(value);
-      if (n != null) {
-        return n;
-      }
-      return value;
-    } else {
-      return value;
-    }
-  }
-
   @protected
   FirebaseFirestore get firestore => FirebaseFirestore.instance;
 
@@ -54,46 +36,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
 
   @protected
   @mustCallSuper
-  Query query(Query query) {
-    if (paramaters.isNotEmpty) {
-      if (!paramaters.containsKey("key")) {
-        return query;
-      }
-      if (paramaters.containsKey("equalTo")) {
-        query = query.where(paramaters["key"],
-            isEqualTo: _parse(paramaters["equalTo"]));
-      }
-      if (paramaters.containsKey("notEqualTo")) {
-        query = query.where(paramaters["key"],
-            isNotEqualTo: _parse(paramaters["noteEqualTo"]));
-      }
-      if (paramaters.containsKey("startAt")) {
-        query = query.where(paramaters["key"],
-            isGreaterThanOrEqualTo: num.parse(paramaters["startAt"] ?? "0"));
-      }
-      if (paramaters.containsKey("endAt")) {
-        query = query.where(paramaters["key"],
-            isLessThanOrEqualTo: num.parse(paramaters["endAt"] ?? "0"));
-      }
-      if (paramaters.containsKey("contains")) {
-        query = query.where(paramaters["key"],
-            arrayContains: _parse(paramaters["contains"]));
-      }
-      if (paramaters.containsKey("limitToFirst")) {
-        query = query.limit(int.parse(paramaters["limitToFirst"] ?? "0"));
-      }
-      if (paramaters.containsKey("limitToLast")) {
-        query = query.limitToLast(int.parse(paramaters["limitToLast"] ?? "0"));
-      }
-      if (paramaters.containsKey("orderByDesc")) {
-        query = query.orderBy(paramaters["orderByDesc"], descending: true);
-      }
-      if (paramaters.containsKey("orderByAsc")) {
-        query = query.orderBy(paramaters["orderByAsc"]);
-      }
-    }
-    return query;
-  }
+  Query query(Query query) => query;
 
   @protected
   @mustCallSuper
@@ -125,70 +68,9 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   @override
   bool get notifyOnChangeList => false;
 
-  List<Query> get references {
-    if (paramaters.containsKey("containsAny")) {
-      final queries = <Query>[];
-      final items = paramaters["containsAny"]?.split(",") ?? <String>[];
-      for (var i = 0; i < items.length; i += 10) {
-        queries.add(
-          query(
-            firestore.collection(path.split("?").first),
-          ).where(
-            paramaters["key"],
-            arrayContainsAny: items
-                .sublist(
-                  i,
-                  min(i + 10, items.length),
-                )
-                .map((e) => _parse(e))
-                .toList(),
-          ),
-        );
-      }
-      return queries;
-    } else if (paramaters.containsKey("whereIn")) {
-      final queries = <Query>[];
-      final items = paramaters["whereIn"]?.split(",") ?? <String>[];
-      for (var i = 0; i < items.length; i += 10) {
-        queries.add(
-          query(
-            firestore.collection(path.split("?").first),
-          ).where(
-            paramaters["key"],
-            whereIn: items
-                .sublist(
-                  i,
-                  min(i + 10, items.length),
-                )
-                .map((e) => _parse(e))
-                .toList(),
-          ),
-        );
-      }
-      return queries;
-    } else if (paramaters.containsKey("whereNotIn")) {
-      final queries = <Query>[];
-      final items = paramaters["whereNotIn"]?.split(",") ?? <String>[];
-      for (var i = 0; i < items.length; i += 10) {
-        queries.add(
-          query(
-            firestore.collection(path.split("?").first),
-          ).where(
-            paramaters["key"],
-            whereIn: items
-                .sublist(
-                  i,
-                  min(i + 10, items.length),
-                )
-                .map((e) => _parse(e))
-                .toList(),
-          ),
-        );
-      }
-      return queries;
-    }
-    return [query(firestore.collection(path))];
-  }
+  @protected
+  @mustCallSuper
+  List<Query> get references => [query(firestore.collection(path))];
 
   @override
   void dispose() {

@@ -91,30 +91,34 @@ mixin FirestoreCounterUpdaterMixin<T extends FirestoreDocumentModel>
     for (final interval in intervals) {
       switch (interval) {
         case FirestoreCounterUpdaterInterval.daily:
-          map["$counterValueKey:${now.format("yyyyMMdd")}"] = value;
+          map[dailyKey(counterValueKey, now)] = FieldValue.increment(value);
           for (var i = 0; i < 30; i++) {
-            map["$counterValueKey:${DateTime(now.year, now.month, now.day - 60 + i).format("yyyyMMdd")}"] =
+            map[dailyKey(counterValueKey,
+                    DateTime(now.year, now.month, now.day - 60 + i))] =
                 FieldValue.delete();
           }
           break;
         case FirestoreCounterUpdaterInterval.monthly:
-          map["$counterValueKey:${now.format("yyyyMM")}"] = value;
+          map[monthlyKey(counterValueKey, now)] = FieldValue.increment(value);
           for (var i = 0; i < 12; i++) {
-            map["$counterValueKey:${DateTime(now.year, now.month - 24 + i).format("yyyyMM")}"] =
+            map[monthlyKey(
+                    counterValueKey, DateTime(now.year, now.month - 24 + i))] =
                 FieldValue.delete();
           }
           break;
         case FirestoreCounterUpdaterInterval.yearly:
-          map["$counterValueKey:${now.format("yyyy")}"] = value;
+          map[yearlyKey(counterValueKey, now)] = FieldValue.increment(value);
           for (var i = 0; i < 5; i++) {
-            map["$counterValueKey:${DateTime(now.year, now.month - 10 + i).format("yyyy")}"] =
+            map[yearlyKey(
+                    counterValueKey, DateTime(now.year, now.month - 10 + i))] =
                 FieldValue.delete();
           }
           break;
         case FirestoreCounterUpdaterInterval.weekly:
-          map["$counterValueKey:${now.format("yyyyww")}"] = value;
+          map[weeklyKey(counterValueKey, now)] = FieldValue.increment(value);
           for (var i = 0; i < 4; i++) {
-            map["$counterValueKey:${DateTime(now.year, now.month, now.day - ((8 - i) * 7)).format("yyyy")}"] =
+            map[weeklyKey(counterValueKey,
+                    DateTime(now.year, now.month, now.day - ((8 - i) * 7)))] =
                 FieldValue.delete();
           }
           break;

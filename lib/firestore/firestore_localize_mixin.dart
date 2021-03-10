@@ -1,7 +1,6 @@
 part of firebase_model_notifier;
 
 mixin FirestoreLocalizeMixin<T> on FirestoreDocumentModel<T> {
-  String get localeValueKey => "@locale";
   String get localizationValueKey => "@translate";
   List<String> get localizationKeys;
 

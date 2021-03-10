@@ -5,8 +5,12 @@ mixin FirestoreDocumentMetaMixin<T> on FirestoreDocumentModel<T> {
   @protected
   @mustCallSuper
   Map<String, dynamic> filterOnSave(Map<String, dynamic> save) {
-    save[timeValueKey] = Timestamp.fromDate(DateTime.now());
+    save[timeValueKey] = FieldValue.serverTimestamp();
     save[uidValueKey] = reference.id;
+    final language = Localize.language;
+    if (language.isNotEmpty) {
+      save[localeValueKey] = language;
+    }
     return super.filterOnSave(save);
   }
 }

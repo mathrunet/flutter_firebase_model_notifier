@@ -7,7 +7,7 @@ abstract class FirebaseFunctionsCollectionModel<T> extends ValueModel<List<T>>
 
   @protected
   FirebaseFunctions get functions {
-    return FirebaseFunctions.instance;
+    return FirebaseFunctions.instanceFor(region: FirebaseCore.region);
   }
 
   @override
@@ -41,10 +41,10 @@ abstract class FirebaseFunctionsCollectionModel<T> extends ValueModel<List<T>>
   @mustCallSuper
   @protected
   @mustCallSuper
-  void onCatchResponse(HttpsCallableResult<String> response) {}
+  void onCatchResponse(HttpsCallableResult<List> response) {}
 
   @protected
-  List<Object> fromResponse(String json) => jsonDecodeAsList(json);
+  List<Object> fromResponse(List list) => list.cast<Object>();
 
   @protected
   @mustCallSuper
@@ -56,14 +56,14 @@ abstract class FirebaseFunctionsCollectionModel<T> extends ValueModel<List<T>>
   T create() => createDocument();
 
   Future<List<T>> call({Map<String, dynamic>? parameters}) async {
+    await FirebaseCore.initialize();
     await onLoad();
     final res = await functions
         .httpsCallable(endpoint.split("/").last)
-        .call<String>(parameters);
+        .call<List>(parameters);
     onCatchResponse(res);
     final data = fromCollection(filterOnCall(fromResponse(res.data)));
     addAll(data);
-    streamController.sink.add(value);
     notifyListeners();
     await onDidLoad();
     return this;

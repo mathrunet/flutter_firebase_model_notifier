@@ -14,7 +14,7 @@ class FirebaseFunctionsDynamicModel extends FirebaseFunctionsModel<dynamic> {
   bool get notifyOnChangeValue => false;
 
   @override
-  dynamic fromResponse(String data) {
-    return data;
+  dynamic fromResponse(dynamic value) {
+    return value;
   }
 }

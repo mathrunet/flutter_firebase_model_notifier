@@ -27,6 +27,28 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     return const {};
   }
 
+  @override
+  @protected
+  @mustCallSuper
+  void initState() {
+    super.initState();
+    if (Config.isMockup) {
+      if (initialMock.isNotEmpty) {
+        final addData = <T>[];
+        for (final tmp in initialMock) {
+          final value = createDocument("$path/${tmp.hashCode}");
+          value.value = value.fromMap(value.filterOnLoad(tmp));
+          addData.add(value);
+        }
+        addAll(addData);
+      }
+    }
+  }
+
+  @override
+  @protected
+  final List<Map<String, dynamic>> initialMock = const [];
+
   @protected
   FirebaseFirestore get firestore => FirebaseFirestore.instance;
 
@@ -88,6 +110,9 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
 
   @override
   FirestoreCollectionModel<T> mock(List<Map<String, dynamic>> mockData) {
+    if (!Config.isMockup) {
+      return this;
+    }
     bool notify = false;
     if (isNotEmpty) {
       clear();
@@ -104,7 +129,6 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
       addAll(addData);
     }
     if (notify) {
-      streamController.sink.add(value);
       notifyListeners();
     }
     return this;
@@ -199,7 +223,6 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
       }
     }
     if (notify) {
-      streamController.sink.add(value);
       notifyListeners();
     }
   }

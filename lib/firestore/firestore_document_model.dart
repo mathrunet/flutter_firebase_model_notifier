@@ -35,14 +35,15 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   @mustCallSuper
   void initState() {
     super.initState();
-    if (Config.isMockup) {
-      value = fromMap(filterOnLoad(initialMock));
+    if (Config.isEnabledMockup && initialMock != null) {
+      // ignore: null_check_on_nullable_type_parameter
+      value = initialMock!;
     }
   }
 
   @override
   @protected
-  final Map<String, dynamic> initialMock = const {};
+  final T? initialMock = null;
 
   @override
   void dispose() {
@@ -115,11 +116,14 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   }
 
   @override
-  FirestoreDocumentModel<T> mock(Map<String, dynamic> mockData) {
-    if (!Config.isMockup) {
+  FirestoreDocumentModel<T> mock(T mockData) {
+    if (!Config.isEnabledMockup) {
       return this;
     }
-    value = fromMap(filterOnLoad(mockData));
+    if (value == mockData) {
+      return this;
+    }
+    value = mockData;
     notifyListeners();
     return this;
   }

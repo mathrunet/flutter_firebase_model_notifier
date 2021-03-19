@@ -32,22 +32,19 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   @mustCallSuper
   void initState() {
     super.initState();
-    if (Config.isMockup) {
+    if (Config.isEnabledMockup) {
+      if (isNotEmpty) {
+        return;
+      }
       if (initialMock.isNotEmpty) {
-        final addData = <T>[];
-        for (final tmp in initialMock) {
-          final value = createDocument("$path/${tmp.hashCode}");
-          value.value = value.fromMap(value.filterOnLoad(tmp));
-          addData.add(value);
-        }
-        addAll(addData);
+        addAll(initialMock);
       }
     }
   }
 
   @override
   @protected
-  final List<Map<String, dynamic>> initialMock = const [];
+  final List<T> initialMock = const [];
 
   @protected
   FirebaseFirestore get firestore => FirebaseFirestore.instance;
@@ -109,26 +106,15 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   T create([String? id]) => createDocument("$path/${id.isEmpty ? uuid : id}");
 
   @override
-  FirestoreCollectionModel<T> mock(List<Map<String, dynamic>> mockData) {
-    if (!Config.isMockup) {
+  FirestoreCollectionModel<T> mock(List<T> mockDataList) {
+    if (!Config.isEnabledMockup) {
       return this;
     }
-    bool notify = false;
     if (isNotEmpty) {
-      clear();
-      notify = true;
+      return this;
     }
-    if (mockData.isNotEmpty) {
-      notify = true;
-      final addData = <T>[];
-      for (final tmp in mockData) {
-        final value = createDocument("$path/${tmp.hashCode}");
-        value.value = value.fromMap(value.filterOnLoad(tmp));
-        addData.add(value);
-      }
-      addAll(addData);
-    }
-    if (notify) {
+    if (mockDataList.isNotEmpty) {
+      addAll(mockDataList);
       notifyListeners();
     }
     return this;

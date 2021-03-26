@@ -35,7 +35,7 @@ extension FirestoreDynamicDocumentModelExtensions
       tmp += this[bigramKey];
     }
     final res = <String, bool>{};
-    final bigramList = tmp.splitByBigram();
+    final bigramList = tmp.toLowerCase().splitByBigram();
     for (final bigram in bigramList) {
       res[bigram] = true;
     }

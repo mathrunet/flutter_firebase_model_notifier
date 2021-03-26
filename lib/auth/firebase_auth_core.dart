@@ -97,6 +97,9 @@ class FirebaseAuthCore {
   /// [protorol]: Protocol specification.
   static bool get isAnonymously => _auth.isAnonymously;
 
+  /// Returns a JWT refresh token for the user.
+  String get refreshToken => _auth.refreshToken;
+
   /// Reload the user data.
   ///
   /// [protorol]: Protocol specification.

@@ -14,3 +14,9 @@ String get userId {
   final auth = readProvider(firebaseAuthProvider);
   return auth.uid;
 }
+
+/// Returns a JWT refresh token for the user.
+String get refreshToken {
+  final auth = readProvider(firebaseAuthProvider);
+  return auth.refreshToken;
+}

@@ -192,6 +192,14 @@ class FirebaseAuthModel extends Model<User?> {
     return user!.isAnonymous;
   }
 
+  /// Returns a JWT refresh token for the user.
+  String get refreshToken {
+    if (user.isEmpty) {
+      return "";
+    }
+    return user!.refreshToken ?? "";
+  }
+
   /// Reload the user data.
   ///
   /// [protorol]: Protocol specification.

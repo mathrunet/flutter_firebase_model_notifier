@@ -23,6 +23,7 @@ mixin FirestoreSearchUpdaterMixin<T> on FirestoreDocumentModel<T> {
       return super.filterOnSave(save);
     }
     save[searchValueKey] = tmp
+        .toLowerCase()
         .splitByBigram()
         .toMap<String, bool>(key: (val) => val, value: (val) => true);
     return super.filterOnSave(save);

@@ -51,6 +51,25 @@ extension FirestoreDynamicDocumentModelExtensions
     return this;
   }
 
+  FirestoreDynamicDocumentModel setNotificationField({
+    required String title,
+    required String text,
+    required DateTime time,
+    String timeKey = "@pushTime",
+    String titleKey = "@pushName",
+    String textKey = "@pushText",
+  }) {
+    assert(title.isNotEmpty, "The title is empty.");
+    assert(text.isNotEmpty, "The text is empty.");
+    assert(timeKey.isNotEmpty, "The time key is empty.");
+    assert(titleKey.isNotEmpty, "The title key is empty.");
+    assert(textKey.isNotEmpty, "The text key is empty.");
+    this[timeKey] = Timestamp.fromDate(time);
+    this[titleKey] = title;
+    this[textKey] = text;
+    return this;
+  }
+
   FirestoreDynamicDocumentModel increment(
     String key,
     num value, {

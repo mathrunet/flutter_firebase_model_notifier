@@ -24,6 +24,7 @@ import "package:katana/katana.dart" as katana;
 import "package:cloud_functions/cloud_functions.dart";
 import "package:katana_firebase/katana_firebase.dart";
 import "package:model_notifier/model_notifier.dart";
+export "package:firebase_auth/firebase_auth.dart" show ActionCodeSettings;
 export "package:model_notifier/model_notifier.dart";
 export "package:cloud_firestore/cloud_firestore.dart";
 export 'package:firebase_auth/firebase_auth.dart';

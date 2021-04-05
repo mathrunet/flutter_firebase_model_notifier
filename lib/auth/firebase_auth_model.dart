@@ -200,6 +200,14 @@ class FirebaseAuthModel extends Model<User?> {
     return user!.refreshToken ?? "";
   }
 
+  /// Returns a JWT access token for the user.
+  Future<String> get accessToken {
+    if (user.isEmpty) {
+      return Future.value("");
+    }
+    return user!.getIdToken();
+  }
+
   /// Reload the user data.
   ///
   /// [protorol]: Protocol specification.
@@ -397,19 +405,25 @@ class FirebaseAuthModel extends Model<User?> {
   /// [timeout]: Timeout time.
   Future<User> sendPasswordResetEmail(
       {required String email,
+      ActionCodeSettings? actionCodeSettings,
       String? locale,
       Duration timeout = const Duration(seconds: 60)}) async {
     assert(email.isNotEmpty, "This email is invalid.");
     await _sendPasswordResetEmailProcess(
-        email, locale ?? Localize.locale, timeout);
+        email, locale ?? Localize.locale, timeout, actionCodeSettings);
     return user!;
   }
 
   Future<void> _sendPasswordResetEmailProcess(
-      String email, String locale, Duration timeout) async {
+    String email,
+    String locale,
+    Duration timeout,
+    ActionCodeSettings? actionCodeSettings,
+  ) async {
     await FirebaseCore.initialize();
     await auth.setLanguageCode(locale);
-    await auth.sendPasswordResetEmail(email: email);
+    await auth.sendPasswordResetEmail(
+        email: email, actionCodeSettings: actionCodeSettings);
     notifyListeners();
   }
 

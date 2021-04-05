@@ -100,6 +100,9 @@ class FirebaseAuthCore {
   /// Returns a JWT refresh token for the user.
   String get refreshToken => _auth.refreshToken;
 
+  /// Returns a JWT access token for the user.
+  Future<String> get accessToken => _auth.accessToken;
+
   /// Reload the user data.
   ///
   /// [protorol]: Protocol specification.
@@ -220,11 +223,13 @@ class FirebaseAuthCore {
   static Future<User> sendPasswordResetEmail(
           {required String email,
           String? locale,
+          ActionCodeSettings? actionCodeSettings,
           Duration timeout = const Duration(seconds: 60)}) =>
       _auth.sendPasswordResetEmail(
         email: email,
         locale: locale,
         timeout: timeout,
+        actionCodeSettings: actionCodeSettings,
       );
 
   /// Link by email link.

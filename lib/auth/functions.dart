@@ -20,3 +20,9 @@ String get refreshToken {
   final auth = readProvider(firebaseAuthProvider);
   return auth.refreshToken;
 }
+
+/// Returns a JWT access token for the user.
+Future<String> get accessToken {
+  final auth = readProvider(firebaseAuthProvider);
+  return auth.accessToken;
+}

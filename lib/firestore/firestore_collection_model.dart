@@ -132,6 +132,26 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     return this;
   }
 
+  /// Reload data and updates the data in the model.
+  ///
+  /// It is basically the same as the [load] method,
+  /// but combining it with [loadOnce] makes it easier to manage the data.
+  @override
+  Future<FirestoreCollectionModel<T>> reload() => load();
+
+  /// If the data is empty, [load] is performed only once.
+  ///
+  /// In other cases, the value is returned as is.
+  ///
+  /// Use [isEmpty] to determine whether the file is empty or not.
+  @override
+  Future<FirestoreCollectionModel<T>> loadOnce() async {
+    if (isEmpty) {
+      return load();
+    }
+    return this;
+  }
+
   Future<FirestoreCollectionModel<T>> next() async {
     await FirebaseCore.initialize();
     final last = length <= 0 ? null : this.last._snapshot;

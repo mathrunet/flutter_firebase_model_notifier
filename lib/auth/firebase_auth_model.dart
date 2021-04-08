@@ -403,27 +403,66 @@ class FirebaseAuthModel extends Model<User?> {
   /// [protorol]: Protocol specification.
   /// [locale]: Specify the language of the confirmation email.
   /// [timeout]: Timeout time.
-  Future<User> sendPasswordResetEmail(
+  Future<void> sendPasswordResetEmail(
       {required String email,
       ActionCodeSettings? actionCodeSettings,
       String? locale,
       Duration timeout = const Duration(seconds: 60)}) async {
     assert(email.isNotEmpty, "This email is invalid.");
     await _sendPasswordResetEmailProcess(
-        email, locale ?? Localize.locale, timeout, actionCodeSettings);
-    return user!;
+      email,
+      locale ?? Localize.locale,
+      actionCodeSettings,
+      timeout,
+    );
   }
 
   Future<void> _sendPasswordResetEmailProcess(
     String email,
     String locale,
-    Duration timeout,
     ActionCodeSettings? actionCodeSettings,
+    Duration timeout,
   ) async {
     await FirebaseCore.initialize();
     await auth.setLanguageCode(locale);
     await auth.sendPasswordResetEmail(
         email: email, actionCodeSettings: actionCodeSettings);
+    notifyListeners();
+  }
+
+  /// Send you an email to reset your password.
+  ///
+  /// [email]: Email.
+  /// [protorol]: Protocol specification.
+  /// [locale]: Specify the language of the confirmation email.
+  /// [timeout]: Timeout time.
+  Future<void> confirmPasswordReset(
+      {required String code,
+      required String password,
+      String? locale,
+      Duration timeout = const Duration(seconds: 60)}) async {
+    assert(code.isNotEmpty, "This code is invalid.");
+    assert(password.isNotEmpty, "This password is invalid.");
+    await _confirmPasswordResetProcess(
+      code,
+      password,
+      locale ?? Localize.locale,
+      timeout,
+    );
+  }
+
+  Future<void> _confirmPasswordResetProcess(
+    String code,
+    String password,
+    String locale,
+    Duration timeout,
+  ) async {
+    await FirebaseCore.initialize();
+    await auth.setLanguageCode(locale);
+    await auth.confirmPasswordReset(
+      code: code,
+      newPassword: password,
+    );
     notifyListeners();
   }
 

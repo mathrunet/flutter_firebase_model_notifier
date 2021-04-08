@@ -220,7 +220,7 @@ class FirebaseAuthCore {
   /// [protorol]: Protocol specification.
   /// [locale]: Specify the language of the confirmation email.
   /// [timeout]: Timeout time.
-  static Future<User> sendPasswordResetEmail(
+  static Future<void> sendPasswordResetEmail(
           {required String email,
           String? locale,
           ActionCodeSettings? actionCodeSettings,
@@ -230,6 +230,24 @@ class FirebaseAuthCore {
         locale: locale,
         timeout: timeout,
         actionCodeSettings: actionCodeSettings,
+      );
+
+  /// Send you an email to reset your password.
+  ///
+  /// [email]: Email.
+  /// [protorol]: Protocol specification.
+  /// [locale]: Specify the language of the confirmation email.
+  /// [timeout]: Timeout time.
+  static Future<void> confirmPasswordReset(
+          {required String code,
+          required String password,
+          String? locale,
+          Duration timeout = const Duration(seconds: 60)}) =>
+      _auth.confirmPasswordReset(
+        code: code,
+        password: password,
+        locale: locale,
+        timeout: timeout,
       );
 
   /// Link by email link.

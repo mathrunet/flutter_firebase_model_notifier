@@ -87,6 +87,14 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   @override
   bool get notifyOnChangeList => false;
 
+  bool get notifyOnModified => _notifyOnModified;
+  // ignore: prefer_final_fields
+  bool _notifyOnModified = false;
+
+  void setNotifyOnModified(bool notify) {
+    _notifyOnModified = notify;
+  }
+
   @protected
   @mustCallSuper
   List<Query> get references => [query(firestore.collection(path))];
@@ -215,6 +223,9 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
             found._snapshot = doc.doc;
             found._reference = doc.doc.reference;
             found._notifyListeners();
+            if (notifyOnModified) {
+              notify = true;
+            }
           }
           break;
         case DocumentChangeType.removed:

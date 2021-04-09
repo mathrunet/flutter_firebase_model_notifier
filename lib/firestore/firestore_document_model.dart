@@ -46,6 +46,8 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   final T? initialMock = null;
 
   @override
+  @protected
+  @mustCallSuper
   void dispose() {
     super.dispose();
     for (final subscription in subscriptions) {
@@ -62,6 +64,23 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   DocumentSnapshot? _snapshot;
   DocumentReference? _reference;
 
+  /// Returns itself after the load finishes.
+  @override
+  Future<FirestoreDocumentModel<T>> get loading =>
+      _loadingCompleter?.future ?? Future.value(this);
+  Completer<FirestoreDocumentModel<T>>? _loadingCompleter;
+
+  /// Returns itself after the save finishes.
+  @override
+  Future<FirestoreDocumentModel<T>> get saving =>
+      _savingCompleter?.future ?? Future.value(this);
+  Completer<FirestoreDocumentModel<T>>? _savingCompleter;
+
+  /// Returns itself after the delete finishes.
+  Future<void> get deleting => _deletingCompleter?.future ?? Future.value();
+  Completer<void>? _deletingCompleter;
+
+  @override
   @protected
   @mustCallSuper
   Future<void> onLoad() async {}
@@ -70,6 +89,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   @mustCallSuper
   Future<void> onListen() async {}
 
+  @override
   @protected
   @mustCallSuper
   Future<void> onSave() async {}
@@ -78,6 +98,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   @mustCallSuper
   Future<void> onDelete() async {}
 
+  @override
   @protected
   @mustCallSuper
   Future<void> onDidLoad() async {}
@@ -86,6 +107,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   @mustCallSuper
   Future<void> onDidListen() async {}
 
+  @override
   @protected
   @mustCallSuper
   Future<void> onDidSave() async {}
@@ -130,26 +152,50 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
 
   @override
   Future<FirestoreDocumentModel<T>> load() async {
-    await FirebaseCore.initialize();
-    await onLoad();
-    await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
-    await reference.get().then(_handleOnUpdate);
-    await onDidLoad();
+    if (_loadingCompleter != null) {
+      return loading;
+    }
+    _loadingCompleter = Completer<FirestoreDocumentModel<T>>();
+    try {
+      await FirebaseCore.initialize();
+      await onLoad();
+      await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
+      await reference.get().then(_handleOnUpdate);
+      await onDidLoad();
+      _loadingCompleter?.complete(this);
+      _loadingCompleter = null;
+    } catch (e) {
+      _loadingCompleter?.completeError(e);
+      _loadingCompleter = null;
+      rethrow;
+    }
     return this;
   }
 
   @override
   Future<FirestoreDocumentModel<T>> listen() async {
-    if (subscriptions.isNotEmpty) {
-      return this;
+    if (_loadingCompleter != null) {
+      return loading;
     }
-    await FirebaseCore.initialize();
-    await onListen();
-    await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
-    subscriptions.add(
-      reference.snapshots().listen(_handleOnUpdate),
-    );
-    await onDidListen();
+    _loadingCompleter = Completer<FirestoreDocumentModel<T>>();
+    try {
+      if (subscriptions.isNotEmpty) {
+        return this;
+      }
+      await FirebaseCore.initialize();
+      await onListen();
+      await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
+      subscriptions.add(
+        reference.snapshots().listen(_handleOnUpdate),
+      );
+      await onDidListen();
+      _loadingCompleter?.complete(this);
+      _loadingCompleter = null;
+    } catch (e) {
+      _loadingCompleter?.completeError(e);
+      _loadingCompleter = null;
+      rethrow;
+    }
     return this;
   }
 
@@ -160,10 +206,22 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
 
   @override
   Future<FirestoreDocumentModel<T>> save() async {
-    await FirebaseCore.initialize();
-    await onSave();
-    await reference.set(filterOnSave(toMap(value)), SetOptions(merge: true));
-    await onDidSave();
+    if (_savingCompleter != null) {
+      return saving;
+    }
+    _savingCompleter = Completer<FirestoreDocumentModel<T>>();
+    try {
+      await FirebaseCore.initialize();
+      await onSave();
+      await reference.set(filterOnSave(toMap(value)), SetOptions(merge: true));
+      await onDidSave();
+      _savingCompleter?.complete(this);
+      _savingCompleter = null;
+    } catch (e) {
+      _savingCompleter?.completeError(e);
+      _savingCompleter = null;
+      rethrow;
+    }
     return this;
   }
 
@@ -188,10 +246,22 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   }
 
   Future<void> delete() async {
-    await FirebaseCore.initialize();
-    await onDelete();
-    await reference.delete();
-    await onDidDelete();
+    if (_deletingCompleter != null) {
+      return deleting;
+    }
+    _deletingCompleter = Completer<LocalDocumentModel<T>>();
+    try {
+      await FirebaseCore.initialize();
+      await onDelete();
+      await reference.delete();
+      await onDidDelete();
+      _deletingCompleter?.complete();
+      _deletingCompleter = null;
+    } catch (e) {
+      _deletingCompleter?.completeError(e);
+      _deletingCompleter = null;
+      rethrow;
+    }
   }
 
   /// The equality operator.

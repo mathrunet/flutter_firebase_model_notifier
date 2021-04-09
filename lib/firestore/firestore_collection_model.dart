@@ -32,6 +32,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   @mustCallSuper
   void initState() {
     super.initState();
+    FirebaseAuthCore.addListenerOnUnauthorized(_handledOnUnauthorized);
     if (Config.isEnabledMockup) {
       if (isNotEmpty) {
         return;
@@ -57,6 +58,18 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   @mustCallSuper
   Query query(Query query) => query;
 
+  /// Returns itself after the load finishes.
+  @override
+  Future<FirestoreCollectionModel<T>> get loading =>
+      _loadingCompleter?.future ?? Future.value(this);
+  Completer<FirestoreCollectionModel<T>>? _loadingCompleter;
+
+  /// Returns itself after the save finishes.
+  @override
+  Future<FirestoreCollectionModel<T>> get saving => throw UnimplementedError(
+      "Save process should be done for each document.");
+
+  @override
   @protected
   @mustCallSuper
   Future<void> onLoad() async {}
@@ -69,6 +82,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   @mustCallSuper
   Future<void> onLoadNext() async {}
 
+  @override
   @protected
   @mustCallSuper
   Future<void> onDidLoad() async {}
@@ -80,6 +94,20 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   @protected
   @mustCallSuper
   Future<void> onDidLoadNext() async {}
+
+  /// Callback after the load has been done.
+  @override
+  @protected
+  @mustCallSuper
+  Future<void> onSave() async => throw UnimplementedError(
+      "Save process should be done for each document.");
+
+  /// Callback after the save has been done.
+  @override
+  @protected
+  @mustCallSuper
+  Future<void> onDidSave() async => throw UnimplementedError(
+      "Save process should be done for each document.");
 
   @override
   bool get notifyOnChangeValue => false;
@@ -100,8 +128,18 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   List<Query> get references => [query(firestore.collection(path))];
 
   @override
+  @protected
+  @mustCallSuper
   void dispose() {
     super.dispose();
+    FirebaseAuthCore.removeListenerOnUnauthorized(_handledOnUnauthorized);
+    for (final subscription in subscriptions) {
+      subscription.cancel();
+    }
+    subscriptions.clear();
+  }
+
+  Future<void> _handledOnUnauthorized(FirebaseAuthModel auth) async {
     for (final subscription in subscriptions) {
       subscription.cancel();
     }
@@ -130,13 +168,25 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
 
   @override
   Future<FirestoreCollectionModel<T>> load() async {
-    await FirebaseCore.initialize();
-    await onLoad();
-    await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
-    await Future.wait(
-      references.map((reference) => reference.get().then(_handleOnUpdate)),
-    );
-    await onDidLoad();
+    if (_loadingCompleter != null) {
+      return loading;
+    }
+    _loadingCompleter = Completer<FirestoreCollectionModel<T>>();
+    try {
+      await FirebaseCore.initialize();
+      await onLoad();
+      await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
+      await Future.wait(
+        references.map((reference) => reference.get().then(_handleOnUpdate)),
+      );
+      await onDidLoad();
+      _loadingCompleter?.complete(this);
+      _loadingCompleter = null;
+    } catch (e) {
+      _loadingCompleter?.completeError(e);
+      _loadingCompleter = null;
+      rethrow;
+    }
     return this;
   }
 
@@ -161,18 +211,30 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   }
 
   Future<FirestoreCollectionModel<T>> next() async {
-    await FirebaseCore.initialize();
-    final last = length <= 0 ? null : this.last._snapshot;
-    if (last == null) {
-      return load();
+    if (_loadingCompleter != null) {
+      return loading;
     }
-    await onLoadNext();
-    await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
-    await Future.wait(
-      references.map((reference) =>
-          reference.startAtDocument(last).get().then(_handleOnUpdate)),
-    );
-    await onDidLoadNext();
+    _loadingCompleter = Completer<FirestoreCollectionModel<T>>();
+    try {
+      await FirebaseCore.initialize();
+      final last = length <= 0 ? null : this.last._snapshot;
+      if (last == null) {
+        return load();
+      }
+      await onLoadNext();
+      await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
+      await Future.wait(
+        references.map((reference) =>
+            reference.startAtDocument(last).get().then(_handleOnUpdate)),
+      );
+      await onDidLoadNext();
+      _loadingCompleter?.complete(this);
+      _loadingCompleter = null;
+    } catch (e) {
+      _loadingCompleter?.completeError(e);
+      _loadingCompleter = null;
+      rethrow;
+    }
     return this;
   }
 
@@ -181,15 +243,27 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     if (subscriptions.isNotEmpty) {
       return this;
     }
-    await FirebaseCore.initialize();
-    await onLoad();
-    await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
-    subscriptions.addAll(
-      references.map(
-        (reference) => reference.snapshots().listen(_handleOnUpdate),
-      ),
-    );
-    await onDidListen();
+    if (_loadingCompleter != null) {
+      return loading;
+    }
+    _loadingCompleter = Completer<FirestoreCollectionModel<T>>();
+    try {
+      await FirebaseCore.initialize();
+      await onLoad();
+      await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
+      subscriptions.addAll(
+        references.map(
+          (reference) => reference.snapshots().listen(_handleOnUpdate),
+        ),
+      );
+      await onDidListen();
+      _loadingCompleter?.complete(this);
+      _loadingCompleter = null;
+    } catch (e) {
+      _loadingCompleter?.completeError(e);
+      _loadingCompleter = null;
+      rethrow;
+    }
     return this;
   }
 

@@ -29,6 +29,22 @@ class FirebaseAuthModel extends Model<User?> {
           Future<void> Function(FirebaseAuthModel auth, User user, String uid)>
       _onAuthorizedCallback = [];
 
+  void addListenerOnUnauthorized(
+      Future<void> Function(FirebaseAuthModel auth) callback) {
+    if (_onUnauthorizedCallback.contains(callback)) {
+      return;
+    }
+    _onUnauthorizedCallback.add(callback);
+  }
+
+  void removeListenerOnUnauthorized(
+      Future<void> Function(FirebaseAuthModel auth) callback) {
+    _onUnauthorizedCallback.remove(callback);
+  }
+
+  final List<Future<void> Function(FirebaseAuthModel auth)>
+      _onUnauthorizedCallback = [];
+
   static const String _hashKey = "MBdKdx3nAHFNeaP32zu8re9rzfHSGZj3";
 
   // @protected
@@ -249,7 +265,10 @@ class FirebaseAuthModel extends Model<User?> {
     await FirebaseCore.initialize();
     await auth.signOut().timeout(timeout);
     // user = null;
-    await Config.onUserStateChanged.call("");
+    await Future.wait([
+      Config.onUserStateChanged.call(""),
+      ..._onUnauthorizedCallback.mapAndRemoveEmpty((item) => item.call(this)),
+    ]);
     notifyListeners();
   }
 

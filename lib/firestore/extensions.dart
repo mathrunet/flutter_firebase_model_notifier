@@ -34,18 +34,24 @@ extension FirestoreDynamicDocumentModelExtensions
       }
       tmp += this[bigramKey];
     }
+    for (final tagKey in tagKeys) {
+      final tags = this[tagKey];
+      if (tags is! List<String>) {
+        continue;
+      }
+      for (final tag in tags) {
+        tmp += tag;
+      }
+    }
     final res = <String, bool>{};
-    final bigramList = tmp.toLowerCase().splitByBigram();
+    tmp = tmp.toLowerCase();
+    final bigramList = tmp.splitByBigram();
     for (final bigram in bigramList) {
       res[bigram] = true;
     }
-    for (final tagKey in tagKeys) {
-      if (this[tagKey] is! List<String>) {
-        continue;
-      }
-      for (final tag in this[tagKey]) {
-        res[tag] = true;
-      }
+    final characterList = tmp.splitByCharacter();
+    for (final character in characterList) {
+      res[character] = true;
     }
     this[key] = res;
     return this;

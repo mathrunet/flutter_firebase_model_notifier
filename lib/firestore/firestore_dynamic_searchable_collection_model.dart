@@ -7,7 +7,8 @@ final firestoreSearchableCollectionProvider =
 
 class FirestoreDynamicSearchableCollectionModel
     extends FirestoreCollectionModel<FirestoreDynamicDocumentModel>
-    with FirestoreSearchQueryMixin {
+    with FirestoreSearchQueryMixin
+    implements DynamicCollectionModel<FirestoreDynamicDocumentModel> {
   FirestoreDynamicSearchableCollectionModel(String path) : super(path);
 
   @override

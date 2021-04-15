@@ -7,7 +7,8 @@ final firestoreCollectionProvider =
 
 class FirestoreDynamicCollectionModel
     extends FirestoreCollectionModel<FirestoreDynamicDocumentModel>
-    with FirestoreCollectionQueryMixin<FirestoreDynamicDocumentModel> {
+    with FirestoreCollectionQueryMixin<FirestoreDynamicDocumentModel>
+    implements DynamicCollectionModel<FirestoreDynamicDocumentModel> {
   FirestoreDynamicCollectionModel(String path,
       [List<FirestoreDynamicDocumentModel>? value])
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 1),

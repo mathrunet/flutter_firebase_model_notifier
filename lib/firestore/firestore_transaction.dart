@@ -157,8 +157,8 @@ class FirestoreIncrementCounterTransactionBuilder {
         transaction.set(
           doc.reference,
           {
-            "uid": id,
-            "time": FieldValue.serverTimestamp(),
+            Const.uid: id,
+            Const.time: FieldValue.serverTimestamp(),
           },
           SetOptions(merge: true),
         );
@@ -176,8 +176,8 @@ class FirestoreIncrementCounterTransactionBuilder {
         transaction.set(
           linkDoc.reference,
           {
-            "uid": linkId,
-            "time": FieldValue.serverTimestamp(),
+            Const.uid: linkId,
+            Const.time: FieldValue.serverTimestamp(),
           },
           SetOptions(merge: true),
         );

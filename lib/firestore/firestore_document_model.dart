@@ -26,8 +26,13 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     return const {};
   }
 
-  final String uidValueKey = "uid";
-  final String timeValueKey = "time";
+  /// Key for UID values.
+  final String uidValueKey = Const.uid;
+
+  /// Key for time values.
+  final String timeValueKey = Const.time;
+
+  /// Key for locale values.
   final String localeValueKey = "@locale";
 
   @override

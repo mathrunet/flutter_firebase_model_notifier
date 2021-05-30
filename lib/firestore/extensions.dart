@@ -24,8 +24,8 @@ extension FirestoreDynamicDocumentModelExtensions
 
   FirestoreDynamicDocumentModel setSearchField({
     String key = "@search",
-    List<String> bigramKeys = const ["name", "text"],
-    List<String> tagKeys = const ["tag", "category"],
+    List<String> bigramKeys = const [Const.name, Const.text],
+    List<String> tagKeys = const [Const.tag, Const.category],
   }) {
     var tmp = "";
     for (final bigramKey in bigramKeys) {

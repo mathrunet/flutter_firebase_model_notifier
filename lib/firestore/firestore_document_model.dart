@@ -33,7 +33,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   final String timeValueKey = Const.time;
 
   /// Key for locale values.
-  final String localeValueKey = "@locale";
+  final String localeValueKey = MetaConst.locale;
 
   @override
   @protected

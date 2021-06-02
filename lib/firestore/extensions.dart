@@ -6,7 +6,7 @@ extension FirestoreDynamicDocumentModelExtensions
     String key,
     String orElse, {
     String? locale,
-    String localizationValueKey = "@translate",
+    String localizationValueKey = MetaConst.translate,
   }) {
     locale ??= Localize.language;
     final map = get(
@@ -23,7 +23,7 @@ extension FirestoreDynamicDocumentModelExtensions
   }
 
   FirestoreDynamicDocumentModel setSearchField({
-    String key = "@search",
+    String key = MetaConst.search,
     List<String> bigramKeys = const [Const.name, Const.text],
     List<String> tagKeys = const [Const.tag, Const.category],
   }) {
@@ -61,9 +61,9 @@ extension FirestoreDynamicDocumentModelExtensions
     required String title,
     required String text,
     required DateTime time,
-    String timeKey = "@pushTime",
-    String titleKey = "@pushName",
-    String textKey = "@pushText",
+    String timeKey = MetaConst.pushTime,
+    String titleKey = MetaConst.pushName,
+    String textKey = MetaConst.pushText,
   }) {
     assert(title.isNotEmpty, "The title is empty.");
     assert(text.isNotEmpty, "The text is empty.");

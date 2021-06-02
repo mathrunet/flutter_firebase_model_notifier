@@ -4,7 +4,7 @@ mixin FirestoreSearchQueryMixin<T extends FirestoreDocumentModel>
     on FirestoreCollectionModel<T> {
   String _searchText = "";
   @protected
-  String get searchValueKey => "@search";
+  String get searchValueKey => MetaConst.search;
 
   @override
   @protected

@@ -1,7 +1,7 @@
 part of firebase_model_notifier;
 
 mixin FirestoreLocalizeMixin<T> on FirestoreDocumentModel<T> {
-  String get localizationValueKey => "@translate";
+  String get localizationValueKey => MetaConst.translate;
   List<String> get localizationKeys;
 
   @override

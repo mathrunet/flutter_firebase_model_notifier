@@ -2,7 +2,7 @@ part of firebase_model_notifier;
 
 mixin FirestoreSearchUpdaterMixin<T> on FirestoreDocumentModel<T> {
   @protected
-  String get searchValueKey => "@search";
+  String get searchValueKey => MetaConst.search;
 
   @protected
   List<String> get searchableKey;

@@ -6,10 +6,9 @@ final functionsDocumentProvider =
 );
 
 class FirebaseFunctionsDynamicDocumentModel
-    extends FirebaseFunctionsDocumentModel<Map<String, dynamic>>
+    extends FirebaseFunctionsDocumentModel<DynamicMap>
     with MapModelMixin<dynamic> {
-  FirebaseFunctionsDynamicDocumentModel(String endpoint,
-      [Map<String, dynamic>? map])
+  FirebaseFunctionsDynamicDocumentModel(String endpoint, [DynamicMap? map])
       : super(endpoint, map ?? {});
 
   @override
@@ -18,13 +17,11 @@ class FirebaseFunctionsDynamicDocumentModel
 
   @override
   @protected
-  Map<String, dynamic> get initialValue => {};
+  DynamicMap get initialValue => {};
 
   @override
-  Map<String, dynamic> fromMap(Map<String, dynamic> map) =>
-      map.cast<String, dynamic>();
+  DynamicMap fromMap(DynamicMap map) => map.cast<String, dynamic>();
 
   @override
-  Map<String, dynamic> toMap(Map<String, dynamic> value) =>
-      value.cast<String, Object>();
+  DynamicMap toMap(DynamicMap value) => value.cast<String, Object>();
 }

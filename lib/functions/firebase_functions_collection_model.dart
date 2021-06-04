@@ -55,7 +55,7 @@ abstract class FirebaseFunctionsCollectionModel<T> extends ValueModel<List<T>>
 
   T create() => createDocument();
 
-  Future<List<T>> call({Map<String, dynamic>? parameters}) async {
+  Future<List<T>> call({DynamicMap? parameters}) async {
     await FirebaseCore.initialize();
     await onLoad();
     final res = await functions

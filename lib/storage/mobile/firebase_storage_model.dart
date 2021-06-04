@@ -1,16 +1,43 @@
-part of firebase_model_notifier;
+part of firebase_model_notifier.storage.mobile;
 
+/// Class for handling Firebase storage.
+///
+/// Basically, you specify the [path] of the local file in [upload] and
+/// receive the URL after the upload.
+///
+/// You can then use [Image.network] or similar to display that URL.
+///
+/// ```
+/// final firebaseStorageProvider = readProvider(firebaseStorageProvider("remote path"));
+/// final media = firebaseStorageProvider.upload("local path");
+/// if(media == null) return;
+/// Image.network(media.url);
+/// ```
 final firebaseStorageProvider =
     ModelProvider.family<FirebaseStorageModel, String>(
   (_, path) => FirebaseStorageModel(path),
 );
 
-class FirebaseStorageModel extends ValueModel<File?> {
+/// Class for handling Firebase storage.
+///
+/// Basically, you specify the [path] of the local file in [upload] and
+/// receive the URL after the upload.
+///
+/// You can then use [Image.network] or similar to display that URL.
+class FirebaseStorageModel extends ValueModel<String?> {
+  /// Class for handling Firebase storage.
+  ///
+  /// Basically, you specify the [path] of the local file in [upload] and
+  /// receive the URL after the upload.
+  ///
+  /// You can then use [Image.network] or similar to display that URL.
   FirebaseStorageModel(this.path) : super(null);
 
+  /// The remote file path.
   @protected
   final String path;
 
+  /// Firebase storage instance.
   @protected
   FirebaseStorage get storage {
     return FirebaseStorage.instance;
@@ -24,6 +51,7 @@ class FirebaseStorageModel extends ValueModel<File?> {
   String get url =>
       "https://firebasestorage.googleapis.com/v0/b/$storageBucket/o/$path?alt=media";
 
+  /// Reference to Firebase storage.
   @protected
   Reference get reference {
     return storage.ref().child(path);
@@ -33,10 +61,7 @@ class FirebaseStorageModel extends ValueModel<File?> {
   ///
   /// Download the file and save it locally.
   ///
-  /// [path]: Upload destination path.
-  /// [cachePath]: Cache path for downloaded files.
-  /// [storageBucket]: Storage bucket path.
-  /// [timeout]: Timeout time.
+  /// Specify [cachePath] and save the downloaded file there.
   Future<FirebaseStorageModel> download(
     String cachePath, {
     Duration timeout = const Duration(seconds: 300),
@@ -49,27 +74,36 @@ class FirebaseStorageModel extends ValueModel<File?> {
 
   /// Perform upload.
   ///
-  /// Put the file to be uploaded in [File].
-  ///
-  /// [path]: Upload destination path.
-  /// [file]: File to upload.
-  /// [storageBucket]: Storage bucket path.
-  /// [timeout]: Timeout time.
-  Future<FirebaseStorageModel> upload(File file,
-      {Duration timeout = const Duration(seconds: 300)}) async {
+  /// Put the file to be uploaded from [filePath].
+  Future<FirebaseStorageModel> upload(
+    String filePath, {
+    Duration timeout = const Duration(seconds: 300),
+  }) async {
     assert(path.isNotEmpty, "Path is invalid.");
-    await _upload(file, timeout);
+    await _upload(filePath, timeout);
     return this;
   }
 
   /// Download the file again.
   ///
-  /// [cachePath]: Cache path for downloaded files.
-  /// [timeout]: Timeout time.
-  Future<FirebaseStorageModel> retryeDownload(String cachePath,
-      {Duration timeout = const Duration(seconds: 300)}) async {
+  /// Specify [cachePath] and save the downloaded file there.
+  Future<FirebaseStorageModel> retryDownload(String cachePath,
+      {Duration timeout = const Duration(
+        seconds: 300,
+      )}) async {
     assert(cachePath.isNotEmpty, "Cache path is invalid.");
     await _download(cachePath, timeout);
+    return this;
+  }
+
+  /// Upload the file again.
+  ///
+  /// Put the file to be uploaded from [filePath].
+  Future<FirebaseStorageModel> retryUpload(
+    String filePath, {
+    Duration timeout = const Duration(seconds: 300),
+  }) async {
+    await _upload(filePath, timeout);
     return this;
   }
 
@@ -90,30 +124,28 @@ class FirebaseStorageModel extends ValueModel<File?> {
       }
       final downloadTask = reference.writeToFile(cacheFile);
       await Future.value(downloadTask).timeout(timeout);
-      value = cacheFile;
+      value = cachePath;
     } catch (e) {
       rethrow;
     }
   }
 
-  /// Upload the file again.
-  ///
-  /// [file]: File to upload.
-  /// [timeout]: Timeout time.
-  Future<FirebaseStorageModel> retryUpload(File file,
-      {Duration timeout = const Duration(seconds: 300)}) async {
-    await _upload(file, timeout);
-    return this;
-  }
-
-  Future<void> _upload(File file, Duration timeout) async {
+  Future<void> _upload(String filePath, Duration timeout) async {
     try {
       if (!isSignedIn) {
         throw Exception("Firebase is not initialized and authenticated.");
       }
+      assert(filePath.isNotEmpty, "Path is empty.");
+      if (filePath.startsWith("http")) {
+        return;
+      }
+      final file = File(filePath);
+      if (!file.existsSync()) {
+        throw Exception("File is not found.");
+      }
       final uploadTask = reference.putFile(file);
       await Future.value(uploadTask).timeout(timeout);
-      value = file;
+      value = filePath;
     } catch (e) {
       rethrow;
     }

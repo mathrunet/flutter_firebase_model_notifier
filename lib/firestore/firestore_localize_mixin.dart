@@ -7,13 +7,13 @@ mixin FirestoreLocalizeMixin<T> on FirestoreDocumentModel<T> {
   @override
   @protected
   @mustCallSuper
-  Map<String, dynamic> filterOnLoad(Map<String, dynamic> loaded) {
+  DynamicMap filterOnLoad(DynamicMap loaded) {
     for (final key in localizationKeys) {
       final language = Localize.language;
       assert(language.isNotEmpty,
           "The locale is not set. Run [Localize.initialize()] to initialize the translation.");
       final localizations =
-          loaded.get<Map<String, dynamic>>("$key$localizationValueKey", {});
+          loaded.get<DynamicMap>("$key$localizationValueKey", {});
       loaded[key] = localizations.get(language, loaded.get<String>(key, ""));
     }
     return super.filterOnLoad(loaded);
@@ -22,7 +22,7 @@ mixin FirestoreLocalizeMixin<T> on FirestoreDocumentModel<T> {
   @override
   @protected
   @mustCallSuper
-  Map<String, dynamic> filterOnSave(Map<String, dynamic> save) {
+  DynamicMap filterOnSave(DynamicMap save) {
     final language = Localize.language;
     assert(language.isNotEmpty,
         "The locale is not set. Run [Localize.initialize()] to initialize the translation.");

@@ -12,9 +12,9 @@ class FirestoreQuery extends CollectionQuery {
     // dynamic isGreaterThan;
     dynamic isGreaterThanOrEqualTo,
     dynamic arrayContains,
-    List<dynamic>? arrayContainsAny,
-    List<dynamic>? whereIn,
-    List<dynamic>? whereNotIn,
+    DynamicList? arrayContainsAny,
+    DynamicList? whereIn,
+    DynamicList? whereNotIn,
     // bool? isNull;
     CollectionQueryOrder order = CollectionQueryOrder.asc,
     int? limit,

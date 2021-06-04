@@ -9,14 +9,12 @@
 library firebase_model_notifier;
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 // ignore: unused_import
 import 'package:firebase_core/firebase_core.dart';
 import "package:cloud_firestore/cloud_firestore.dart";
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:katana/katana.dart";
@@ -28,6 +26,11 @@ export "package:firebase_auth/firebase_auth.dart" show ActionCodeSettings;
 export "package:model_notifier/model_notifier.dart";
 export "package:cloud_firestore/cloud_firestore.dart";
 export 'package:firebase_auth/firebase_auth.dart';
+
+export 'storage/others/others.dart'
+    if (dart.library.io) 'storage/mobile/storage.dart'
+    if (dart.library.js) 'storage/web/storage.dart'
+    if (dart.library.html) 'storage/web/storage.dart';
 
 part 'src/extensions.dart';
 part 'firestore/functions.dart';
@@ -64,6 +67,3 @@ part 'functions/firebase_functions_collection_model.dart';
 part 'functions/firebase_functions_dynamic_model.dart';
 part 'functions/firebase_functions_dynamic_document_model.dart';
 part 'functions/firebase_functions_dynamic_collection_model.dart';
-
-part 'storage/firebase_storage_core.dart';
-part 'storage/firebase_storage_model.dart';

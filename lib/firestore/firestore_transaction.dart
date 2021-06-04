@@ -91,7 +91,7 @@ class FirestoreIncrementCounterTransactionBuilder {
     return "$path$counterSuffix";
   }
 
-  Map<String, dynamic> _buildCounterUpdate(String key, num value) {
+  DynamicMap _buildCounterUpdate(String key, num value) {
     final now = DateTime.now();
     final map = {key: FieldValue.increment(1)};
     for (final interval in counterIntervals) {

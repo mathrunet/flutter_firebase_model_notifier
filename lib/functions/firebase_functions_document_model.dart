@@ -43,13 +43,13 @@ abstract class FirebaseFunctionsDocumentModel<T> extends DocumentModel<T> {
   void onCatchResponse(HttpsCallableResult<Map> response) {}
 
   @protected
-  Map<String, dynamic> fromResponse(Map map) => map.cast<String, dynamic>();
+  DynamicMap fromResponse(Map map) => map.cast<String, dynamic>();
 
   @protected
   @mustCallSuper
-  Map<String, dynamic> filterOnCall(Map<String, dynamic> loaded) => loaded;
+  DynamicMap filterOnCall(DynamicMap loaded) => loaded;
 
-  Future<T> call({Map<String, dynamic>? parameters}) async {
+  Future<T> call({DynamicMap? parameters}) async {
     await FirebaseCore.initialize();
     await onLoad();
     final res = await functions

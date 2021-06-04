@@ -37,7 +37,7 @@ abstract class FirebaseFunctionsModel<T> extends ValueModel<T> {
   @mustCallSuper
   T filterOnCall(T loaded) => loaded;
 
-  Future<T> call({Map<String, dynamic>? parameters}) async {
+  Future<T> call({DynamicMap? parameters}) async {
     await FirebaseCore.initialize();
     await onLoad();
     final res = await functions

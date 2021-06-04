@@ -4,7 +4,7 @@ mixin FirestoreDocumentMetaMixin<T> on FirestoreDocumentModel<T> {
   @override
   @protected
   @mustCallSuper
-  Map<String, dynamic> filterOnSave(Map<String, dynamic> save) {
+  DynamicMap filterOnSave(DynamicMap save) {
     save[timeValueKey] = FieldValue.serverTimestamp();
     save[uidValueKey] = reference.id;
     final language = Localize.language;

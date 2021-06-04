@@ -10,7 +10,7 @@ mixin FirestoreSearchUpdaterMixin<T> on FirestoreDocumentModel<T> {
   @override
   @protected
   @mustCallSuper
-  Map<String, dynamic> filterOnSave(Map<String, dynamic> save) {
+  DynamicMap filterOnSave(DynamicMap save) {
     var tmp = "";
     for (final key in searchableKey) {
       if (key.isEmpty || !save.containsKey(key)) {

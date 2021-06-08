@@ -93,7 +93,7 @@ class FirestoreIncrementCounterTransactionBuilder {
 
   DynamicMap _buildCounterUpdate(String key, num value) {
     final now = DateTime.now();
-    final map = {key: FieldValue.increment(1)};
+    final map = {key: FieldValue.increment(value)};
     for (final interval in counterIntervals) {
       switch (interval) {
         case FirestoreCounterUpdaterInterval.daily:

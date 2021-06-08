@@ -28,9 +28,9 @@ export "package:cloud_firestore/cloud_firestore.dart";
 export 'package:firebase_auth/firebase_auth.dart';
 
 export 'storage/others/others.dart'
-    if (dart.library.io) 'storage/mobile/storage.dart'
-    if (dart.library.js) 'storage/web/storage.dart'
-    if (dart.library.html) 'storage/web/storage.dart';
+    if (dart.library.io) 'storage/mobile/mobile.dart'
+    if (dart.library.js) 'storage/web/web.dart'
+    if (dart.library.html) 'storage/web/web.dart';
 
 part 'src/extensions.dart';
 part 'firestore/functions.dart';

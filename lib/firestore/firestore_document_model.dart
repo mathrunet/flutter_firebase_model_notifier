@@ -218,7 +218,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     try {
       await FirebaseCore.initialize();
       await onSave();
-      await reference.set(filterOnSave(toMap(value)), SetOptions(merge: true));
+      await reference.set(filterOnSave(toMap(value)));
       await onDidSave();
       _savingCompleter?.complete(this);
       _savingCompleter = null;

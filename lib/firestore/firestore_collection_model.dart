@@ -195,7 +195,11 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   /// It is basically the same as the [load] method,
   /// but combining it with [loadOnce] makes it easier to manage the data.
   @override
-  Future<FirestoreCollectionModel<T>> reload() => load();
+  Future<FirestoreCollectionModel<T>> reload() async {
+    clear();
+    await load();
+    return this;
+  }
 
   /// If the data is empty, [load] is performed only once.
   ///

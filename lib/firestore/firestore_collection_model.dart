@@ -56,7 +56,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
 
   @protected
   @mustCallSuper
-  Query query(Query query) => query;
+  Query<DynamicMap> query(Query<DynamicMap> query) => query;
 
   /// Returns itself after the load finishes.
   @override
@@ -125,7 +125,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
 
   @protected
   @mustCallSuper
-  List<Query> get references => [query(firestore.collection(path))];
+  List<Query<DynamicMap>> get references => [query(firestore.collection(path))];
 
   @override
   @protected
@@ -172,21 +172,22 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
       return loading;
     }
     _loadingCompleter = Completer<FirestoreCollectionModel<T>>();
-    try {
-      await FirebaseCore.initialize();
-      await onLoad();
-      await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
-      await Future.wait(
-        references.map((reference) => reference.get().then(_handleOnUpdate)),
-      );
-      await onDidLoad();
-      _loadingCompleter?.complete(this);
-      _loadingCompleter = null;
-    } catch (e) {
-      _loadingCompleter?.completeError(e);
-      _loadingCompleter = null;
-      rethrow;
-    }
+    await FirebaseCore.initialize();
+    FirebaseCore.enqueueTransaction(() async {
+      try {
+        await onLoad();
+        await Future.wait(
+          references.map((reference) => reference.get().then(_handleOnUpdate)),
+        );
+        await onDidLoad();
+        _loadingCompleter?.complete(this);
+        _loadingCompleter = null;
+      } finally {
+        _loadingCompleter?.completeError(e);
+        _loadingCompleter = null;
+      }
+    });
+    await _loadingCompleter!.future;
     return this;
   }
 
@@ -218,27 +219,28 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     if (_loadingCompleter != null) {
       return loading;
     }
-    _loadingCompleter = Completer<FirestoreCollectionModel<T>>();
-    try {
-      await FirebaseCore.initialize();
-      final last = length <= 0 ? null : this.last._snapshot;
-      if (last == null) {
-        return load();
-      }
-      await onLoadNext();
-      await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
-      await Future.wait(
-        references.map((reference) =>
-            reference.startAtDocument(last).get().then(_handleOnUpdate)),
-      );
-      await onDidLoadNext();
-      _loadingCompleter?.complete(this);
-      _loadingCompleter = null;
-    } catch (e) {
-      _loadingCompleter?.completeError(e);
-      _loadingCompleter = null;
-      rethrow;
+    final last = length <= 0 ? null : this.last._snapshot;
+    if (last == null) {
+      return load();
     }
+    _loadingCompleter = Completer<FirestoreCollectionModel<T>>();
+    await FirebaseCore.initialize();
+    FirebaseCore.enqueueTransaction(() async {
+      try {
+        await onLoadNext();
+        await Future.wait(
+          references.map((reference) =>
+              reference.startAtDocument(last).get().then(_handleOnUpdate)),
+        );
+        await onDidLoadNext();
+        _loadingCompleter?.complete(this);
+        _loadingCompleter = null;
+      } finally {
+        _loadingCompleter?.completeError(e);
+        _loadingCompleter = null;
+      }
+    });
+    await _loadingCompleter!.future;
     return this;
   }
 
@@ -251,23 +253,24 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
       return loading;
     }
     _loadingCompleter = Completer<FirestoreCollectionModel<T>>();
-    try {
-      await FirebaseCore.initialize();
-      await onLoad();
-      await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
-      subscriptions.addAll(
-        references.map(
-          (reference) => reference.snapshots().listen(_handleOnUpdate),
-        ),
-      );
-      await onDidListen();
-      _loadingCompleter?.complete(this);
-      _loadingCompleter = null;
-    } catch (e) {
-      _loadingCompleter?.completeError(e);
-      _loadingCompleter = null;
-      rethrow;
-    }
+    await FirebaseCore.initialize();
+    FirebaseCore.enqueueTransaction(() async {
+      try {
+        await onLoad();
+        subscriptions.addAll(
+          references.map(
+            (reference) => reference.snapshots().listen(_handleOnUpdate),
+          ),
+        );
+        await onDidListen();
+        _loadingCompleter?.complete(this);
+        _loadingCompleter = null;
+      } finally {
+        _loadingCompleter?.completeError(e);
+        _loadingCompleter = null;
+      }
+    });
+    await _loadingCompleter!.future;
     return this;
   }
 
@@ -276,7 +279,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     throw UnimplementedError("Save process should be done for each document.");
   }
 
-  void _handleOnUpdate(QuerySnapshot snapshot) {
+  void _handleOnUpdate(QuerySnapshot<DynamicMap> snapshot) {
     bool notify = false;
     for (final doc in snapshot.docChanges) {
       final found = firstWhereOrNull(

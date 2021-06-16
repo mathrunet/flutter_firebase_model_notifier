@@ -38,7 +38,7 @@ class FirestoreTransaction {
     await FirebaseCore.initialize();
     List<String> generated = [];
     do {
-      await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
+      // await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
       generated = List.generate(
           10, (index) => katana.generateCode(length, charSet: charSet));
       final snapshot = await FirebaseFirestore.instance
@@ -50,7 +50,7 @@ class FirestoreTransaction {
           continue;
         }
         final map = doc.data();
-        if (map == null || !map.containsKey(key)) {
+        if (map.isEmpty || !map.containsKey(key)) {
           continue;
         }
         generated.remove(map.get(key, ""));
@@ -137,7 +137,7 @@ class FirestoreIncrementCounterTransactionBuilder {
             (linkedCollectionPath.isNotEmpty && linkId.isNotEmpty),
         "When [linkId] is specified, [linkPath] must be specified.");
     await FirebaseCore.initialize();
-    await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
+    // await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
     final firestore = FirebaseFirestore.instance;
     final docPath = counterBuilder?.call(collectionPath) ??
         _buildCounterPath(collectionPath) ??
@@ -200,7 +200,7 @@ class FirestoreIncrementCounterTransactionBuilder {
             (linkedCollectionPath.isNotEmpty && linkId.isNotEmpty),
         "When [linkId] is specified, [linkPath] must be specified.");
     await FirebaseCore.initialize();
-    await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
+    // await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
     final firestore = FirebaseFirestore.instance;
     final docPath = counterBuilder?.call(collectionPath) ??
         _buildCounterPath(collectionPath) ??

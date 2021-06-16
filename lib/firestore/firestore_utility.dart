@@ -26,7 +26,7 @@ class FirestoreUtility {
       required String key,
       required dynamic value}) async {
     await FirebaseCore.initialize();
-    await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
+    // await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
     final snapshot = await FirebaseFirestore.instance
         .collection(path)
         .where(key, isEqualTo: value)

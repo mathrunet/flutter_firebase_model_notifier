@@ -9,7 +9,7 @@ mixin FirestoreSearchQueryMixin<T extends FirestoreDocumentModel>
   @override
   @protected
   @mustCallSuper
-  Query query(Query query) {
+  Query<DynamicMap> query(Query<DynamicMap> query) {
     if (_searchText.isEmpty) {
       return query;
     }

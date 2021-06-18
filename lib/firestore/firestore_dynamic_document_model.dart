@@ -6,7 +6,7 @@ final firestoreDocumentProvider =
 );
 
 class FirestoreDynamicDocumentModel extends FirestoreDocumentModel<DynamicMap>
-    with MapModelMixin<dynamic>, FirestoreDocumentMetaMixin<DynamicMap>
+    with MapModelMixin<String, dynamic>, FirestoreDocumentMetaMixin<DynamicMap>
     implements DynamicDocumentModel {
   FirestoreDynamicDocumentModel(String path, [DynamicMap? map])
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 0),

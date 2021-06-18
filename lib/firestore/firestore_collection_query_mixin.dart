@@ -6,41 +6,41 @@ mixin FirestoreCollectionQueryMixin<T extends FirestoreDocumentModel>
   @protected
   @mustCallSuper
   Query<DynamicMap> query(Query<DynamicMap> query) {
-    if (paramaters.isNotEmpty) {
-      if (!paramaters.containsKey("key")) {
+    if (parameters.isNotEmpty) {
+      if (!parameters.containsKey("key")) {
         return query;
       }
-      if (paramaters.containsKey("equalTo")) {
-        query = query.where(paramaters["key"]!,
-            isEqualTo: FirestoreUtility._parse(paramaters["equalTo"]));
+      if (parameters.containsKey("equalTo")) {
+        query = query.where(parameters["key"]!,
+            isEqualTo: FirestoreUtility._parse(parameters["equalTo"]));
       }
-      if (paramaters.containsKey("notEqualTo")) {
-        query = query.where(paramaters["key"]!,
-            isNotEqualTo: FirestoreUtility._parse(paramaters["noteEqualTo"]));
+      if (parameters.containsKey("notEqualTo")) {
+        query = query.where(parameters["key"]!,
+            isNotEqualTo: FirestoreUtility._parse(parameters["noteEqualTo"]));
       }
-      if (paramaters.containsKey("startAt")) {
-        query = query.where(paramaters["key"]!,
-            isGreaterThanOrEqualTo: num.parse(paramaters["startAt"] ?? "0"));
+      if (parameters.containsKey("startAt")) {
+        query = query.where(parameters["key"]!,
+            isGreaterThanOrEqualTo: num.parse(parameters["startAt"] ?? "0"));
       }
-      if (paramaters.containsKey("endAt")) {
-        query = query.where(paramaters["key"]!,
-            isLessThanOrEqualTo: num.parse(paramaters["endAt"] ?? "0"));
+      if (parameters.containsKey("endAt")) {
+        query = query.where(parameters["key"]!,
+            isLessThanOrEqualTo: num.parse(parameters["endAt"] ?? "0"));
       }
-      if (paramaters.containsKey("contains")) {
-        query = query.where(paramaters["key"]!,
-            arrayContains: FirestoreUtility._parse(paramaters["contains"]));
+      if (parameters.containsKey("contains")) {
+        query = query.where(parameters["key"]!,
+            arrayContains: FirestoreUtility._parse(parameters["contains"]));
       }
-      if (paramaters.containsKey("limitToFirst")) {
-        query = query.limit(int.parse(paramaters["limitToFirst"] ?? "0"));
+      if (parameters.containsKey("limitToFirst")) {
+        query = query.limit(int.parse(parameters["limitToFirst"] ?? "0"));
       }
-      if (paramaters.containsKey("limitToLast")) {
-        query = query.limitToLast(int.parse(paramaters["limitToLast"] ?? "0"));
+      if (parameters.containsKey("limitToLast")) {
+        query = query.limitToLast(int.parse(parameters["limitToLast"] ?? "0"));
       }
-      if (paramaters.containsKey("orderByDesc")) {
-        query = query.orderBy(paramaters["orderByDesc"]!, descending: true);
+      if (parameters.containsKey("orderByDesc")) {
+        query = query.orderBy(parameters["orderByDesc"]!, descending: true);
       }
-      if (paramaters.containsKey("orderByAsc")) {
-        query = query.orderBy(paramaters["orderByAsc"]!);
+      if (parameters.containsKey("orderByAsc")) {
+        query = query.orderBy(parameters["orderByAsc"]!);
       }
     }
     return super.query(query);
@@ -50,15 +50,15 @@ mixin FirestoreCollectionQueryMixin<T extends FirestoreDocumentModel>
   @protected
   @mustCallSuper
   List<Query<DynamicMap>> get references {
-    if (paramaters.containsKey("containsAny")) {
+    if (parameters.containsKey("containsAny")) {
       final queries = <Query<DynamicMap>>[];
-      final items = paramaters["containsAny"]?.split(",") ?? <String>[];
+      final items = parameters["containsAny"]?.split(",") ?? <String>[];
       for (var i = 0; i < items.length; i += 10) {
         queries.add(
           query(
             firestore.collection(path.split("?").first),
           ).where(
-            paramaters["key"]!,
+            parameters["key"]!,
             arrayContainsAny: items
                 .sublist(
                   i,
@@ -70,15 +70,15 @@ mixin FirestoreCollectionQueryMixin<T extends FirestoreDocumentModel>
         );
       }
       return queries;
-    } else if (paramaters.containsKey("whereIn")) {
+    } else if (parameters.containsKey("whereIn")) {
       final queries = <Query<DynamicMap>>[];
-      final items = paramaters["whereIn"]?.split(",") ?? <String>[];
+      final items = parameters["whereIn"]?.split(",") ?? <String>[];
       for (var i = 0; i < items.length; i += 10) {
         queries.add(
           query(
             firestore.collection(path.split("?").first),
           ).where(
-            paramaters["key"]!,
+            parameters["key"]!,
             whereIn: items
                 .sublist(
                   i,
@@ -90,15 +90,15 @@ mixin FirestoreCollectionQueryMixin<T extends FirestoreDocumentModel>
         );
       }
       return queries;
-    } else if (paramaters.containsKey("whereNotIn")) {
+    } else if (parameters.containsKey("whereNotIn")) {
       final queries = <Query<DynamicMap>>[];
-      final items = paramaters["whereNotIn"]?.split(",") ?? <String>[];
+      final items = parameters["whereNotIn"]?.split(",") ?? <String>[];
       for (var i = 0; i < items.length; i += 10) {
         queries.add(
           query(
             firestore.collection(path.split("?").first),
           ).where(
-            paramaters["key"]!,
+            parameters["key"]!,
             whereIn: items
                 .sublist(
                   i,

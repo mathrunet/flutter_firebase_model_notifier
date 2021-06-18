@@ -9,7 +9,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 0),
             "The path hierarchy must be an even number."),
         path = _getPath(path),
-        paramaters = _getParamaters(path),
+        parameters = _getParameters(path),
         super(value);
 
   static String _getPath(String path) {
@@ -19,7 +19,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     return path;
   }
 
-  static Map<String, String> _getParamaters(String path) {
+  static Map<String, String> _getParameters(String path) {
     if (path.contains("?")) {
       return Uri.parse(path).queryParameters;
     }
@@ -62,7 +62,7 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   }
 
   final String path;
-  final Map<String, String> paramaters;
+  final Map<String, String> parameters;
 
   final List<StreamSubscription> subscriptions = [];
 

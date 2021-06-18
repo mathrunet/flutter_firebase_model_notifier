@@ -7,7 +7,7 @@ final functionsDocumentProvider =
 
 class FirebaseFunctionsDynamicDocumentModel
     extends FirebaseFunctionsDocumentModel<DynamicMap>
-    with MapModelMixin<dynamic> {
+    with MapModelMixin<String, dynamic> {
   FirebaseFunctionsDynamicDocumentModel(String endpoint, [DynamicMap? map])
       : super(endpoint, map ?? {});
 

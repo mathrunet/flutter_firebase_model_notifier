@@ -9,18 +9,11 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   FirestoreCollectionModel(String path, [List<T>? value])
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 1),
             "The path hierarchy must be an odd number."),
-        path = _getPath(path),
-        paramaters = _getParamaters(path),
+        path = path.trimQuery(),
+        parameters = _getParameters(path),
         super(value ?? []);
 
-  static String _getPath(String path) {
-    if (path.contains("?")) {
-      return path.split("?").first;
-    }
-    return path;
-  }
-
-  static Map<String, String> _getParamaters(String path) {
+  static Map<String, String> _getParameters(String path) {
     if (path.contains("?")) {
       return Uri.parse(path).queryParameters;
     }
@@ -51,7 +44,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   FirebaseFirestore get firestore => FirebaseFirestore.instance;
 
   final String path;
-  final Map<String, String> paramaters;
+  final Map<String, String> parameters;
   final List<StreamSubscription> subscriptions = [];
 
   @protected
@@ -149,7 +142,8 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   @protected
   T createDocument(String path);
 
-  T create([String? id]) => createDocument("$path/${id.isEmpty ? uuid : id}");
+  T create([String? id]) =>
+      createDocument("${path.trimQuery()}/${id.isEmpty ? uuid : id}");
 
   @override
   FirestoreCollectionModel<T> mock(List<T> mockDataList) {
@@ -289,7 +283,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
           if (found != null) {
             continue;
           }
-          final value = createDocument(doc.doc.reference.path);
+          final value = createDocument(doc.doc.reference.path.trimQuery());
           value.value =
               value.fromMap(value.filterOnLoad(doc.doc.data()?.cast() ?? {}));
           value._snapshot = doc.doc;

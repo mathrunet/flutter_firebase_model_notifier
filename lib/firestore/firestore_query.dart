@@ -1,5 +1,6 @@
 part of firebase_model_notifier;
 
+@immutable
 class FirestoreQuery extends CollectionQuery {
   const FirestoreQuery(
     String path, {

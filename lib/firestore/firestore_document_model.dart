@@ -69,21 +69,10 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   DocumentSnapshot<DynamicMap>? _snapshot;
   DocumentReference<DynamicMap>? _reference;
 
-  /// Returns itself after the load finishes.
+  /// Returns itself after the load/save finishes.
   @override
-  Future<FirestoreDocumentModel<T>> get loading =>
-      _loadingCompleter?.future ?? Future.value(this);
-  Completer<FirestoreDocumentModel<T>>? _loadingCompleter;
-
-  /// Returns itself after the save finishes.
-  @override
-  Future<FirestoreDocumentModel<T>> get saving =>
-      _savingCompleter?.future ?? Future.value(this);
-  Completer<FirestoreDocumentModel<T>>? _savingCompleter;
-
-  /// Returns itself after the delete finishes.
-  Future<void> get deleting => _deletingCompleter?.future ?? Future.value();
-  Completer<void>? _deletingCompleter;
+  Future<void> get future => _completer?.future ?? Future.value();
+  Completer<void>? _completer;
 
   @override
   @protected
@@ -157,24 +146,25 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
 
   @override
   Future<FirestoreDocumentModel<T>> load() async {
-    if (_loadingCompleter != null) {
-      return loading;
+    if (_completer != null) {
+      await future;
+      return this;
     }
-    _loadingCompleter = Completer<FirestoreDocumentModel<T>>();
+    _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
       try {
         await onLoad();
         await reference.get().then(_handleOnUpdate);
         await onDidLoad();
-        _loadingCompleter?.complete(this);
-        _loadingCompleter = null;
+        _completer?.complete();
+        _completer = null;
       } finally {
-        _loadingCompleter?.completeError(e);
-        _loadingCompleter = null;
+        _completer?.completeError(e);
+        _completer = null;
       }
     });
-    await _loadingCompleter!.future;
+    await future;
     return this;
   }
 
@@ -183,10 +173,11 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     if (subscriptions.isNotEmpty) {
       return this;
     }
-    if (_loadingCompleter != null) {
-      return loading;
+    if (_completer != null) {
+      await future;
+      return this;
     }
-    _loadingCompleter = Completer<FirestoreDocumentModel<T>>();
+    _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
       try {
@@ -195,13 +186,14 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
           reference.snapshots().listen(_handleOnUpdate),
         );
         await onDidListen();
-        _loadingCompleter?.complete(this);
-        _loadingCompleter = null;
+        _completer?.complete();
+        _completer = null;
       } finally {
-        _loadingCompleter?.completeError(e);
-        _loadingCompleter = null;
+        _completer?.completeError(e);
+        _completer = null;
       }
     });
+    await future;
     return this;
   }
 
@@ -212,23 +204,25 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
 
   @override
   Future<FirestoreDocumentModel<T>> save() async {
-    if (_savingCompleter != null) {
-      return saving;
+    if (_completer != null) {
+      await future;
+      return this;
     }
-    _savingCompleter = Completer<FirestoreDocumentModel<T>>();
+    _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
       try {
         await onSave();
         await reference.set(filterOnSave(toMap(value)));
         await onDidSave();
-        _savingCompleter?.complete(this);
-        _savingCompleter = null;
+        _completer?.complete();
+        _completer = null;
       } finally {
-        _savingCompleter?.completeError(e);
-        _savingCompleter = null;
+        _completer?.completeError(e);
+        _completer = null;
       }
     });
+    await future;
     return this;
   }
 
@@ -254,23 +248,25 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
 
   /// Delete this document.
   Future<void> delete() async {
-    if (_deletingCompleter != null) {
-      return deleting;
+    if (_completer != null) {
+      await future;
+      return;
     }
-    _deletingCompleter = Completer<LocalDocumentModel<T>>();
+    _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
       try {
         await onDelete();
         await reference.delete();
         await onDidDelete();
-        _deletingCompleter?.complete();
-        _deletingCompleter = null;
+        _completer?.complete();
+        _completer = null;
       } finally {
-        _deletingCompleter?.completeError(e);
-        _deletingCompleter = null;
+        _completer?.completeError(e);
+        _completer = null;
       }
     });
+    await future;
   }
 
   /// The equality operator.

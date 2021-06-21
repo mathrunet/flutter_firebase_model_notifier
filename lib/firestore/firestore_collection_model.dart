@@ -51,16 +51,10 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   @mustCallSuper
   Query<DynamicMap> query(Query<DynamicMap> query) => query;
 
-  /// Returns itself after the load finishes.
+  /// Returns itself after the load/save finishes.
   @override
-  Future<FirestoreCollectionModel<T>> get loading =>
-      _loadingCompleter?.future ?? Future.value(this);
-  Completer<FirestoreCollectionModel<T>>? _loadingCompleter;
-
-  /// Returns itself after the save finishes.
-  @override
-  Future<FirestoreCollectionModel<T>> get saving => throw UnimplementedError(
-      "Save process should be done for each document.");
+  Future<void> get future => _completer?.future ?? Future.value();
+  Completer<void>? _completer;
 
   @override
   @protected
@@ -162,10 +156,11 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
 
   @override
   Future<FirestoreCollectionModel<T>> load() async {
-    if (_loadingCompleter != null) {
-      return loading;
+    if (_completer != null) {
+      await future;
+      return this;
     }
-    _loadingCompleter = Completer<FirestoreCollectionModel<T>>();
+    _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
       try {
@@ -174,14 +169,14 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
           references.map((reference) => reference.get().then(_handleOnUpdate)),
         );
         await onDidLoad();
-        _loadingCompleter?.complete(this);
-        _loadingCompleter = null;
+        _completer?.complete();
+        _completer = null;
       } finally {
-        _loadingCompleter?.completeError(e);
-        _loadingCompleter = null;
+        _completer?.completeError(e);
+        _completer = null;
       }
     });
-    await _loadingCompleter!.future;
+    await future;
     return this;
   }
 
@@ -210,14 +205,15 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   }
 
   Future<FirestoreCollectionModel<T>> next() async {
-    if (_loadingCompleter != null) {
-      return loading;
+    if (_completer != null) {
+      await future;
+      return this;
     }
     final last = length <= 0 ? null : this.last._snapshot;
     if (last == null) {
       return load();
     }
-    _loadingCompleter = Completer<FirestoreCollectionModel<T>>();
+    _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
       try {
@@ -227,14 +223,14 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
               reference.startAtDocument(last).get().then(_handleOnUpdate)),
         );
         await onDidLoadNext();
-        _loadingCompleter?.complete(this);
-        _loadingCompleter = null;
+        _completer?.complete();
+        _completer = null;
       } finally {
-        _loadingCompleter?.completeError(e);
-        _loadingCompleter = null;
+        _completer?.completeError(e);
+        _completer = null;
       }
     });
-    await _loadingCompleter!.future;
+    await future;
     return this;
   }
 
@@ -243,10 +239,11 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     if (subscriptions.isNotEmpty) {
       return this;
     }
-    if (_loadingCompleter != null) {
-      return loading;
+    if (_completer != null) {
+      await future;
+      return this;
     }
-    _loadingCompleter = Completer<FirestoreCollectionModel<T>>();
+    _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
       try {
@@ -257,14 +254,14 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
           ),
         );
         await onDidListen();
-        _loadingCompleter?.complete(this);
-        _loadingCompleter = null;
+        _completer?.complete();
+        _completer = null;
       } finally {
-        _loadingCompleter?.completeError(e);
-        _loadingCompleter = null;
+        _completer?.completeError(e);
+        _completer = null;
       }
     });
-    await _loadingCompleter!.future;
+    await future;
     return this;
   }
 

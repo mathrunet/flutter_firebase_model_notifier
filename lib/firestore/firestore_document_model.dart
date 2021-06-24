@@ -8,16 +8,9 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   FirestoreDocumentModel(String path, T value)
       : assert(!(path.splitLength() <= 0 || path.splitLength() % 2 != 0),
             "The path hierarchy must be an even number."),
-        path = _getPath(path),
+        path = path.trimQuery(),
         parameters = _getParameters(path),
         super(value);
-
-  static String _getPath(String path) {
-    if (path.contains("?")) {
-      return path.split("?").first;
-    }
-    return path;
-  }
 
   static Map<String, String> _getParameters(String path) {
     if (path.contains("?")) {
@@ -73,6 +66,10 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   @override
   Future<void> get future => _completer?.future ?? Future.value();
   Completer<void>? _completer;
+
+  /// It becomes `true` after [loadOnce] is executed.
+  @override
+  bool loaded = false;
 
   @override
   @protected
@@ -240,7 +237,8 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
   /// Use [isEmpty] to determine whether the file is empty or not.
   @override
   Future<FirestoreDocumentModel<T>> loadOnce() async {
-    if (isEmpty) {
+    if (!loaded) {
+      loaded = true;
       return load();
     }
     return this;

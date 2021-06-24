@@ -56,6 +56,10 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   Future<void> get future => _completer?.future ?? Future.value();
   Completer<void>? _completer;
 
+  /// It becomes `true` after [loadOnce] is executed.
+  @override
+  bool loaded = false;
+
   @override
   @protected
   @mustCallSuper
@@ -198,7 +202,8 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
   /// Use [isEmpty] to determine whether the file is empty or not.
   @override
   Future<FirestoreCollectionModel<T>> loadOnce() async {
-    if (isEmpty) {
+    if (!loaded) {
+      loaded = true;
       return load();
     }
     return this;

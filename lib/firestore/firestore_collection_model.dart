@@ -53,7 +53,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
 
   /// Returns itself after the load/save finishes.
   @override
-  Future<void> get future => _completer?.future ?? Future.value();
+  Future<void>? get future => _completer?.future;
   Completer<void>? _completer;
 
   /// It becomes `true` after [loadOnce] is executed.
@@ -175,8 +175,11 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
         await onDidLoad();
         _completer?.complete();
         _completer = null;
-      } finally {
+      } catch (e) {
         _completer?.completeError(e);
+        _completer = null;
+      } finally {
+        _completer?.complete();
         _completer = null;
       }
     });
@@ -230,8 +233,11 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
         await onDidLoadNext();
         _completer?.complete();
         _completer = null;
-      } finally {
+      } catch (e) {
         _completer?.completeError(e);
+        _completer = null;
+      } finally {
+        _completer?.complete();
         _completer = null;
       }
     });
@@ -253,16 +259,21 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     FirebaseCore.enqueueTransaction(() async {
       try {
         await onLoad();
-        subscriptions.addAll(
-          references.map(
-            (reference) => reference.snapshots().listen(_handleOnUpdate),
-          ),
+        final streams = references.map(
+          (reference) => reference.snapshots(),
         );
+        subscriptions.addAll(
+          streams.map((stream) => stream.listen(_handleOnUpdate)),
+        );
+        await Future.wait(streams.map((stream) => stream.first));
         await onDidListen();
         _completer?.complete();
         _completer = null;
-      } finally {
+      } catch (e) {
         _completer?.completeError(e);
+        _completer = null;
+      } finally {
+        _completer?.complete();
         _completer = null;
       }
     });

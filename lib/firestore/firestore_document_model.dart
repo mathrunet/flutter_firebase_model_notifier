@@ -150,8 +150,14 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
+      if (_completer == null) {
+        return;
+      }
       try {
         await onLoad();
+        if (_completer == null) {
+          return;
+        }
         await reference.get().then(_handleOnUpdate);
         await onDidLoad();
         _completer?.complete();
@@ -180,8 +186,20 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
+      if (subscriptions.isNotEmpty) {
+        return;
+      }
+      if (_completer == null) {
+        return;
+      }
       try {
         await onListen();
+        if (subscriptions.isNotEmpty) {
+          return;
+        }
+        if (_completer == null) {
+          return;
+        }
         final stream = reference.snapshots();
         subscriptions.add(stream.listen(_handleOnUpdate));
         await stream.first;
@@ -214,8 +232,14 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
+      if (_completer == null) {
+        return;
+      }
       try {
         await onSave();
+        if (_completer == null) {
+          return;
+        }
         await reference.set(filterOnSave(toMap(value)));
         await onDidSave();
         _completer?.complete();
@@ -262,8 +286,14 @@ abstract class FirestoreDocumentModel<T> extends DocumentModel<T>
     _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
+      if (_completer == null) {
+        return;
+      }
       try {
         await onDelete();
+        if (_completer == null) {
+          return;
+        }
         await reference.delete();
         await onDidDelete();
         _completer?.complete();

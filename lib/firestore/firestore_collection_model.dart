@@ -167,8 +167,14 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
+      if (_completer == null) {
+        return;
+      }
       try {
         await onLoad();
+        if (_completer == null) {
+          return;
+        }
         await Future.wait(
           references.map((reference) => reference.get().then(_handleOnUpdate)),
         );
@@ -224,8 +230,14 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
+      if (_completer == null) {
+        return;
+      }
       try {
         await onLoadNext();
+        if (_completer == null) {
+          return;
+        }
         await Future.wait(
           references.map((reference) =>
               reference.startAtDocument(last).get().then(_handleOnUpdate)),
@@ -257,8 +269,20 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
     _completer = Completer<void>();
     await FirebaseCore.initialize();
     FirebaseCore.enqueueTransaction(() async {
+      if (subscriptions.isNotEmpty) {
+        return;
+      }
+      if (_completer == null) {
+        return;
+      }
       try {
         await onLoad();
+        if (subscriptions.isNotEmpty) {
+          return;
+        }
+        if (_completer == null) {
+          return;
+        }
         final streams = references.map(
           (reference) => reference.snapshots(),
         );

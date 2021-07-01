@@ -36,11 +36,11 @@ extension FirestoreDynamicDocumentModelExtensions
     }
     for (final tagKey in tagKeys) {
       final tags = this[tagKey];
-      if (tags is! List<String>) {
+      if (tags is! List) {
         continue;
       }
       for (final tag in tags) {
-        tmp += tag;
+        tmp += tag.toString();
       }
     }
     final res = <String, bool>{};

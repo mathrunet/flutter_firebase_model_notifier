@@ -301,7 +301,7 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
               value.fromMap(value.filterOnLoad(doc.doc.data()?.cast() ?? {}));
           value._snapshot = doc.doc;
           value._reference = doc.doc.reference;
-          add(value);
+          insert(doc.newIndex, value);
           notify = true;
           break;
         case DocumentChangeType.modified:
@@ -310,8 +310,9 @@ abstract class FirestoreCollectionModel<T extends FirestoreDocumentModel>
                 found.fromMap(found.filterOnLoad(doc.doc.data()?.cast() ?? {}));
             found._snapshot = doc.doc;
             found._reference = doc.doc.reference;
+            insert(doc.newIndex, removeAt(doc.oldIndex));
             found._notifyListeners();
-            if (notifyOnModified) {
+            if (notifyOnModified || doc.newIndex != doc.oldIndex) {
               notify = true;
             }
           }

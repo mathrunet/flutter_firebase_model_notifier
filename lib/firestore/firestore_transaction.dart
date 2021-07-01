@@ -165,7 +165,7 @@ class FirestoreIncrementCounterTransactionBuilder {
           );
           if (docPath.isNotEmpty) {
             final key = docPath.split("/").last;
-            final path = docPath.trimStringRight("/$key");
+            final path = docPath.replaceFirst(RegExp("/$key\$"), "");
             transaction.set(
               firestore.doc(path),
               _buildCounterUpdate(key, 1),
@@ -184,7 +184,7 @@ class FirestoreIncrementCounterTransactionBuilder {
           );
           if (linkDocPath.isNotEmpty) {
             final key = linkDocPath!.split("/").last;
-            final path = linkDocPath.trimStringRight("/$key");
+            final path = linkDocPath.replaceFirst(RegExp("/$key\$"), "");
             transaction.set(
               firestore.doc(path),
               _buildCounterUpdate(key, 1),
@@ -225,7 +225,7 @@ class FirestoreIncrementCounterTransactionBuilder {
           transaction.delete(doc.reference);
           if (docPath.isNotEmpty) {
             final key = docPath.split("/").last;
-            final path = docPath.trimStringRight("/$key");
+            final path = docPath.replaceFirst(RegExp("/$key\$"), "");
             transaction.set(
               firestore.doc(path),
               _buildCounterUpdate(key, -1),
@@ -237,7 +237,7 @@ class FirestoreIncrementCounterTransactionBuilder {
           transaction.delete(linkDoc.reference);
           if (linkDocPath.isNotEmpty) {
             final key = linkDocPath!.split("/").last;
-            final path = linkDocPath.trimStringRight("/$key");
+            final path = linkDocPath.replaceFirst(RegExp("/$key\$"), "");
             transaction.set(
               firestore.doc(path),
               _buildCounterUpdate(key, -1),

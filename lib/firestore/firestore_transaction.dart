@@ -194,6 +194,7 @@ class FirestoreIncrementCounterTransactionBuilder {
         }
       } catch (e) {
         print(e.toString());
+        rethrow;
       }
     });
   }
@@ -246,6 +247,7 @@ class FirestoreIncrementCounterTransactionBuilder {
         }
       } catch (e) {
         print(e.toString());
+        rethrow;
       }
     });
   }

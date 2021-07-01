@@ -148,48 +148,52 @@ class FirestoreIncrementCounterTransactionBuilder {
             _buildCounterPath(linkedCollectionPath!) ??
             "");
     await firestore.runTransaction((transaction) async {
-      final doc = await transaction.get(firestore.doc("$collectionPath/$id"));
-      final linkDoc = linkId.isEmpty || linkedCollectionPath.isEmpty
-          ? null
-          : await transaction
-              .get(firestore.doc("$linkedCollectionPath/$linkId"));
-      if (!doc.exists) {
-        transaction.set(
-          doc.reference,
-          {
-            Const.uid: id,
-            Const.time: FieldValue.serverTimestamp(),
-          },
-          SetOptions(merge: true),
-        );
-        if (docPath.isNotEmpty) {
-          final key = docPath.split("/").last;
-          final path = docPath.trimStringRight("/$key");
+      try {
+        final doc = await transaction.get(firestore.doc("$collectionPath/$id"));
+        final linkDoc = linkId.isEmpty || linkedCollectionPath.isEmpty
+            ? null
+            : await transaction
+                .get(firestore.doc("$linkedCollectionPath/$linkId"));
+        if (!doc.exists) {
           transaction.set(
-            firestore.doc(path),
-            _buildCounterUpdate(key, 1),
+            doc.reference,
+            {
+              Const.uid: id,
+              Const.time: FieldValue.serverTimestamp(),
+            },
             SetOptions(merge: true),
           );
+          if (docPath.isNotEmpty) {
+            final key = docPath.split("/").last;
+            final path = docPath.trimStringRight("/$key");
+            transaction.set(
+              firestore.doc(path),
+              _buildCounterUpdate(key, 1),
+              SetOptions(merge: true),
+            );
+          }
         }
-      }
-      if (linkDoc != null && !linkDoc.exists) {
-        transaction.set(
-          linkDoc.reference,
-          {
-            Const.uid: linkId,
-            Const.time: FieldValue.serverTimestamp(),
-          },
-          SetOptions(merge: true),
-        );
-        if (linkDocPath.isNotEmpty) {
-          final key = linkDocPath!.split("/").last;
-          final path = linkDocPath.trimStringRight("/$key");
+        if (linkDoc != null && !linkDoc.exists) {
           transaction.set(
-            firestore.doc(path),
-            _buildCounterUpdate(key, 1),
+            linkDoc.reference,
+            {
+              Const.uid: linkId,
+              Const.time: FieldValue.serverTimestamp(),
+            },
             SetOptions(merge: true),
           );
+          if (linkDocPath.isNotEmpty) {
+            final key = linkDocPath!.split("/").last;
+            final path = linkDocPath.trimStringRight("/$key");
+            transaction.set(
+              firestore.doc(path),
+              _buildCounterUpdate(key, 1),
+              SetOptions(merge: true),
+            );
+          }
         }
+      } catch (e) {
+        print(e.toString());
       }
     });
   }
@@ -200,7 +204,6 @@ class FirestoreIncrementCounterTransactionBuilder {
             (linkedCollectionPath.isNotEmpty && linkId.isNotEmpty),
         "When [linkId] is specified, [linkPath] must be specified.");
     await FirebaseCore.initialize();
-    // await Future.delayed(Duration(milliseconds: Random().nextInt(100)));
     final firestore = FirebaseFirestore.instance;
     final docPath = counterBuilder?.call(collectionPath) ??
         _buildCounterPath(collectionPath) ??
@@ -211,34 +214,38 @@ class FirestoreIncrementCounterTransactionBuilder {
             _buildCounterPath(linkedCollectionPath!) ??
             "");
     await firestore.runTransaction((transaction) async {
-      final doc = await transaction.get(firestore.doc("$collectionPath/$id"));
-      final linkDoc = linkId.isEmpty || linkedCollectionPath.isEmpty
-          ? null
-          : await transaction
-              .get(firestore.doc("$linkedCollectionPath/$linkId"));
-      if (doc.exists) {
-        transaction.delete(doc.reference);
-        if (docPath.isNotEmpty) {
-          final key = docPath.split("/").last;
-          final path = docPath.trimStringRight("/$key");
-          transaction.set(
-            firestore.doc(path),
-            _buildCounterUpdate(key, -1),
-            SetOptions(merge: true),
-          );
+      try {
+        final doc = await transaction.get(firestore.doc("$collectionPath/$id"));
+        final linkDoc = linkId.isEmpty || linkedCollectionPath.isEmpty
+            ? null
+            : await transaction
+                .get(firestore.doc("$linkedCollectionPath/$linkId"));
+        if (doc.exists) {
+          transaction.delete(doc.reference);
+          if (docPath.isNotEmpty) {
+            final key = docPath.split("/").last;
+            final path = docPath.trimStringRight("/$key");
+            transaction.set(
+              firestore.doc(path),
+              _buildCounterUpdate(key, -1),
+              SetOptions(merge: true),
+            );
+          }
         }
-      }
-      if (linkDoc != null && linkDoc.exists) {
-        transaction.delete(linkDoc.reference);
-        if (linkDocPath.isNotEmpty) {
-          final key = linkDocPath!.split("/").last;
-          final path = linkDocPath.trimStringRight("/$key");
-          transaction.set(
-            firestore.doc(path),
-            _buildCounterUpdate(key, -1),
-            SetOptions(merge: true),
-          );
+        if (linkDoc != null && linkDoc.exists) {
+          transaction.delete(linkDoc.reference);
+          if (linkDocPath.isNotEmpty) {
+            final key = linkDocPath!.split("/").last;
+            final path = linkDocPath.trimStringRight("/$key");
+            transaction.set(
+              firestore.doc(path),
+              _buildCounterUpdate(key, -1),
+              SetOptions(merge: true),
+            );
+          }
         }
+      } catch (e) {
+        print(e.toString());
       }
     });
   }
